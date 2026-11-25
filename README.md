@@ -13,7 +13,7 @@ Design: [docs/design/admin-portal-design.html](docs/design/admin-portal-design.h
 ```
 npm install
 copy .env.example .env        (then edit .env)
-npm run dev                   server on :4000, web on :5173
+npm run dev                   server on :4100, web on :5173
 npm test                      server tests
 npm run typecheck
 npm run build

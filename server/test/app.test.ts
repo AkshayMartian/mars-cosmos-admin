@@ -34,7 +34,7 @@ describe('server', () => {
 
 describe('configuration', () => {
   it('has safe defaults and treats an empty MONGODB_URI as "no database"', () => {
-    expect(loadConfig({ MONGODB_URI: '  ' })).toMatchObject({ PORT: 4000, MONGODB_DB: 'mars_pos', MONGODB_URI: undefined })
+    expect(loadConfig({ MONGODB_URI: '  ' })).toMatchObject({ PORT: 4100, MONGODB_DB: 'mars_pos', MONGODB_URI: undefined })
   })
   it('refuses a database name with a space (Atlas rejects it too)', () => {
     expect(() => loadConfig({ MONGODB_DB: 'Mars Cosmos' })).toThrow('Database names cannot contain')

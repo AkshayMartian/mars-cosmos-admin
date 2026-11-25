@@ -6,7 +6,7 @@ import { z } from 'zod'
 loadEnv({ path: fileURLToPath(new URL('../../.env', import.meta.url)), quiet: true })
 
 const Env = z.object({
-  PORT: z.coerce.number().int().min(1).max(65535).default(4000),
+  PORT: z.coerce.number().int().min(1).max(65535).default(4100),
   HOST: z.string().default('127.0.0.1'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   /** empty = run without a database */
