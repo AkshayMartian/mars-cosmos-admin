@@ -21,7 +21,9 @@ function setup(opts: { failKey?: boolean } = {}) {
   const messenger: Messenger = {
     async sendCode(channel, target, code) { sent.codes[`${channel}:${target}`] = code },
     async sendActivationKey(mobile, _shop, key) { if (opts.failKey) throw new Error('number not on WhatsApp'); sent.keys.push({ mobile, key }); return { messageId: 'wamid.1' } },
-    async sendActivationKeyEmail(email, _shop, key) { if (opts.failKey) throw new Error('mailbox unavailable'); sent.keys.push({ mobile: email, key }); return { messageId: 'wamid.1' } }
+    async sendActivationKeyEmail(email, _shop, key) { if (opts.failKey) throw new Error('mailbox unavailable'); sent.keys.push({ mobile: email, key }); return { messageId: 'wamid.1' } },
+    async sendPinResetEmail() { /* not used here */ },
+    async sendPinChangedEmail() { /* not used here */ }
   }
   const uploads = mkdtempSync(join(tmpdir(), 'mars-up-'))
   const config = loadConfig({ UPLOAD_DIR: uploads, OTP_SECRET: 'test-secret' })

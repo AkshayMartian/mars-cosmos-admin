@@ -11,6 +11,7 @@ import { activateRoutes } from './routes/activate.js'
 import { adminRoutes } from './routes/admin.js'
 import { onboardingRoutes } from './routes/onboarding.js'
 import { healthRoutes } from './routes/health.js'
+import { pinResetRoutes } from './routes/pinreset.js'
 import { plannedRoutes } from './routes/planned.js'
 
 declare module 'fastify' {
@@ -35,6 +36,7 @@ export async function buildApp(config: Config, database: Database | null = null,
   await app.register(adminRoutes(secret, process.env['NODE_ENV'] === 'production'))
   await app.register(onboardingRoutes({ config, messenger, otpSecret: secret, ...(options.emailDomainOk ? { emailDomainOk: options.emailDomainOk } : {}) }))
   await app.register(activateRoutes(config, signer))
+  await app.register(pinResetRoutes({ config, messenger, secret }))
   await app.register(plannedRoutes)
   return app
 }

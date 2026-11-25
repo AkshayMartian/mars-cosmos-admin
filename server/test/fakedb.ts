@@ -10,6 +10,7 @@ function matches(d: Doc, f: Doc): boolean {
     if (v && typeof v === 'object' && !(v instanceof Date)) {
       return Object.entries(v as Doc).every(([op, arg]) => {
         if (op === '$gt') return d[k] > arg
+        if (op === '$in') return (arg as unknown[]).includes(d[k])
         if (op === '$exists') return (d[k] !== undefined) === arg
         throw new Error('fake db: unsupported operator ' + op)
       })
@@ -20,6 +21,7 @@ function matches(d: Doc, f: Doc): boolean {
 
 function update(d: Doc, u: Doc): void {
   Object.assign(d, u['$set'] ?? {})
+  for (const k of Object.keys(u['$unset'] ?? {})) delete d[k]
   for (const [k, n] of Object.entries(u['$inc'] ?? {})) d[k] = (d[k] ?? 0) + (n as number)
 }
 
@@ -43,6 +45,9 @@ export class FakeCollection {
     if (d) { update(d, u); return { matchedCount: 1 } }
     if (o?.upsert) { const n = { _id: randomUUID(), ...f, ...(u['$setOnInsert'] ?? {}) }; update(n, u); this.docs.push(n); return { matchedCount: 0 } }
     return { matchedCount: 0 }
+  }
+  async updateMany(f: Doc, u: Doc) {
+    const ds = this.docs.filter((x) => matches(x, f)); ds.forEach((d) => update(d, u)); return { matchedCount: ds.length }
   }
   async findOneAndUpdate(f: Doc, u: Doc): Promise<Doc | null> {
     const d = this.docs.find((x) => matches(x, f)); if (!d) return null

@@ -9,11 +9,6 @@ export const PLANNED: ReadonlyArray<{ method: 'GET' | 'POST'; url: string; who: 
   { method: 'POST', url: '/v1/refresh', who: 'app', what: 'weekly check: renewed licence, pending PIN hash' },
   { method: 'POST', url: '/v1/trial/otp', who: 'app', what: 'send the free-trial one-time code' },
   { method: 'POST', url: '/v1/trial/verify', who: 'app', what: 'code -> 14-day trial licence' },
-  { method: 'POST', url: '/v1/pin-reset/request', who: 'app', what: 'owner forgot PIN: create the token, email the link' },
-  { method: 'GET', url: '/v1/pin-reset/status', who: 'app', what: 'is the new PIN ready? returns the hash once' },
-  { method: 'POST', url: '/v1/pin-reset/applied', who: 'app', what: 'the PC saved the PIN; delete the hand-off' },
-  { method: 'GET', url: '/v1/pin-reset/validate', who: 'owner web page', what: 'is this link valid, unused and unexpired?' },
-  { method: 'POST', url: '/v1/pin-reset/complete', who: 'owner web page', what: 'new PIN -> hash it, store it, mark the token used' },
   { method: 'GET', url: '/v1/admin/shops', who: 'portal', what: 'shops list' }
 ]
 

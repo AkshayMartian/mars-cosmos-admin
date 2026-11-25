@@ -9,6 +9,10 @@ export interface Messenger {
   sendActivationKey(mobile: string, shop: string, key: string): Promise<{ messageId?: string }>
   /** the activation key, to the owner's verified email (used instead of WhatsApp for now) */
   sendActivationKeyEmail(email: string, shop: string, key: string): Promise<{ messageId?: string }>
+  /** the forgot-PIN link, to the owner's email on file only */
+  sendPinResetEmail(email: string, shop: string, link: string, minutes: number): Promise<void>
+  /** a notice after the PIN was changed from the link */
+  sendPinChangedEmail(email: string, shop: string): Promise<void>
 }
 
 const mask = (s: string): string => (s.includes('@') ? s.replace(/^(.).*(@.*)$/, '$1•••$2') : s.slice(0, 2) + '••••••' + s.slice(-2))
@@ -17,7 +21,9 @@ export function consoleMessenger(log: (m: string) => void = console.log): Messen
   return {
     async sendCode(channel, target, code) { log(`[dev messenger] ${channel} code for ${mask(target)}: ${code}`) },
     async sendActivationKey(mobile, shop, key) { log(`[dev messenger] WhatsApp to ${mask(mobile)}: activation key for "${shop}": ${key}`); return { messageId: 'dev-' + Date.now() } },
-    async sendActivationKeyEmail(email, shop, key) { log(`[dev messenger] email to ${mask(email)}: activation key for "${shop}": ${key}`); return { messageId: 'dev-' + Date.now() } }
+    async sendActivationKeyEmail(email, shop, key) { log(`[dev messenger] email to ${mask(email)}: activation key for "${shop}": ${key}`); return { messageId: 'dev-' + Date.now() } },
+    async sendPinResetEmail(email, shop, link) { log(`[dev messenger] email to ${mask(email)}: PIN reset link for "${shop}": ${link}`) },
+    async sendPinChangedEmail(email, shop) { log(`[dev messenger] email to ${mask(email)}: PIN changed for "${shop}"`) }
   }
 }
 
@@ -49,6 +55,33 @@ Install the app, then enter this key and your registered mobile number to activa
   }
 }
 
+/** The two forgot-PIN emails, by SMTP. */
+function smtpPinSenders(c: Config) {
+  const mail = nodemailer.createTransport(c.SMTP_URL!)
+  return {
+    async reset(to: string, shop: string, link: string, minutes: number): Promise<void> {
+      await mail.sendMail({
+        from: c.SMTP_FROM, to, subject: 'Reset your MARS Cosmos PIN',
+        text: `Someone asked to reset the owner PIN for ${shop}.
+
+Open this link and choose a new 4-digit PIN. It works once and expires in ${minutes} minutes:
+
+${link}
+
+If this was not you, ignore this email: nothing changes until a PIN is saved.`
+      })
+    },
+    async changed(to: string, shop: string): Promise<void> {
+      await mail.sendMail({
+        from: c.SMTP_FROM, to, subject: 'Your MARS Cosmos PIN was changed',
+        text: `The owner PIN for ${shop} was just changed from the reset link.
+
+If this was not you, call MARS support right away.`
+      })
+    }
+  }
+}
+
 /** WhatsApp Business Cloud API: template messages (the code, and the activation key). */
 function whatsappSender(c: Config) {
   return async (mobile: string, name: string, params: string[], buttonParam?: string): Promise<string | undefined> => {
@@ -71,6 +104,7 @@ export function makeMessenger(c: Config, log: (m: string) => void = console.log)
   const dev = consoleMessenger(log)
   const sendMail = c.SMTP_URL ? smtpSender(c) : null
   const sendKeyMail = c.SMTP_URL ? smtpKeySender(c) : null
+  const pinMail = c.SMTP_URL ? smtpPinSenders(c) : null
   const wa = c.MESSENGER === 'live' ? whatsappSender(c) : null
   return {
     async sendCode(channel, target, code) {
@@ -87,6 +121,8 @@ export function makeMessenger(c: Config, log: (m: string) => void = console.log)
       if (!sendKeyMail) return dev.sendActivationKeyEmail(email, shop, key)
       const messageId = await sendKeyMail(email, shop, key)
       return messageId ? { messageId } : {}
-    }
+    },
+    async sendPinResetEmail(email, shop, link, minutes) { return pinMail ? pinMail.reset(email, shop, link, minutes) : dev.sendPinResetEmail(email, shop, link, minutes) },
+    async sendPinChangedEmail(email, shop) { return pinMail ? pinMail.changed(email, shop) : dev.sendPinChangedEmail(email, shop) }
   }
 }
