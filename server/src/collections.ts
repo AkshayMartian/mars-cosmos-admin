@@ -65,7 +65,8 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
       key, tenantId: str(), mobile,
       status: { enum: ['issued', 'activated', 'revoked'] },
       whatsapp: { bsonType: 'object', properties: { status: { enum: ['queued', 'sent', 'delivered', 'failed'] }, messageId: str(), sentAt: date, error: str() } },
-      issuedAt: date, activatedAt: date, machineId: str(), expiresAt: date
+      issuedAt: date, activatedAt: date, machineId: str(), expiresAt: date,
+      licenceDays: { bsonType: ['int', 'long'], minimum: 1 }, licenceIssued: str(), licenceExpires: str(), failedAttempts: { bsonType: ['int', 'long'], minimum: 0 }
     }),
     indexes: [[{ key: 1 }, { unique: true }], [{ tenantId: 1 }, {}]]
   },
@@ -84,6 +85,15 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
       newPinHash: str(), usedAt: date, appliedAt: date, expiresAt: date, createdAt: date
     }),
     indexes: [[{ tokenHash: 1 }, { unique: true }], [{ tenantId: 1, status: 1 }, {}], [{ expiresAt: 1 }, { expireAfterSeconds: 86400 }]]
+  },
+
+  // MARS staff who sign in to this portal (password only as a hash)
+  admin_users: {
+    validator: schema(['email', 'name', 'role', 'passwordHash', 'active', 'createdAt'], {
+      email: str({ pattern: '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$' }), name: str({ minLength: 2, maxLength: 80 }),
+      role: { enum: ['Admin', 'Support', 'Sales'] }, passwordHash: str(), active: { bsonType: 'bool' }, createdAt: date, updatedAt: date, lastLoginAt: date, lockedUntil: date, failedLogins: { bsonType: ['int', 'long'], minimum: 0 }
+    }),
+    indexes: [[{ email: 1 }, { unique: true }]]
   },
 
   audit_log: {

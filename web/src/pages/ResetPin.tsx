@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Logo } from './Login'
+import { PasswordInput } from "../components/ui"
 
 const EASY = new Set(['0000', '1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999', '1234', '4321', '0123', '1212'])
 
-/** The page the owner's emailed link opens. Public (no staff sign-in). Sample mode: the token is not checked yet; /expired previews the dead-link state. */
+/** The page the owner's emailed link opens. Public (no staff sign-in). Sample mode: the token is not checked yet. */
 export function ResetPin() {
   const [view, setView] = useState<'form' | 'done' | 'expired'>('form')
   const [p1, setP1] = useState('')
@@ -19,42 +19,40 @@ export function ResetPin() {
   }
 
   return (
-    <div className="reset">
-      <div className="reset-card stack">
-        <div className="brand dark"><Logo />MARS Cosmos</div>
+    <div className="login">
+      <div className="lcard">
+        <div className="logo" style={{ fontSize: 18 }}><i />MARS Cosmos</div>
         {view === 'form' && (
-          <form className="stack" onSubmit={(e) => { e.preventDefault(); save() }}>
+          <form className="stackv" onSubmit={(e) => { e.preventDefault(); save() }}>
             <div className="muted">Raj Fashion · Owner</div>
             <h1>Choose a new PIN</h1>
-            <div className="sub">This link works once and expires in 14 minutes.</div>
-            <div className="field"><label htmlFor="p1">New PIN (4 digits)</label><input id="p1" type="password" inputMode="numeric" className="otp" value={p1} onChange={(e) => setP1(d(e.target.value))} autoFocus /></div>
-            <div className="field"><label htmlFor="p2">Confirm new PIN</label><input id="p2" type="password" inputMode="numeric" className="otp" value={p2} onChange={(e) => setP2(d(e.target.value))} /></div>
+            <div className="muted">This link works once and expires in 14 minutes.</div>
+            <div className="f"><label htmlFor="p1">New PIN (4 digits)</label><PasswordInput id="p1" inputMode="numeric" value={p1} onChange={(e) => setP1(d(e.target.value))} autoFocus /></div>
+            <div className="f"><label htmlFor="p2">Confirm new PIN</label><PasswordInput id="p2" inputMode="numeric" value={p2} onChange={(e) => setP2(d(e.target.value))} /></div>
             {error ? <div className="err" role="alert">{error}</div> : <div className="hint">Exactly 4 digits. Not an easy PIN like 1111, 1234 or 0000.</div>}
-            <button className="btn primary wide big" type="submit">Save new PIN</button>
-            <div className="small muted">Not you? Close this page. Nothing changes until a PIN is saved.</div>
-            <button type="button" className="link" onClick={() => setView('expired')}>Preview: what an expired link shows</button>
+            <button className="btn p wide" type="submit">Save new PIN</button>
+            <div className="hint">Not you? Close this page. Nothing changes until a PIN is saved.</div>
+            <button type="button" className="btn sm" onClick={() => setView('expired')}>Preview: what an expired link shows</button>
           </form>
         )}
         {view === 'done' && (
-          <div className="stack center">
-            <div className="bigmark ok">✓</div>
+          <div className="stackv">
             <h1>PIN saved</h1>
-            <p>Go back to Mars Cosmos on your shop PC. It picks up the new PIN in a few seconds. Then log in with it.</p>
-            <div className="small muted">We also sent you an email to confirm the change. If this was not you, call MARS support right away.</div>
-            <button type="button" className="link" onClick={() => { setView('form'); setP1(''); setP2('') }}>Back to the form</button>
+            <p style={{ margin: 0 }}>Go back to Mars Cosmos on your shop PC. It picks up the new PIN in a few seconds. Then log in with it.</p>
+            <div className="hint">We also sent you an email to confirm the change. If this was not you, call MARS support right away.</div>
+            <button type="button" className="btn sm" onClick={() => { setView('form'); setP1(''); setP2('') }}>Back to the form</button>
           </div>
         )}
         {view === 'expired' && (
-          <div className="stack center">
-            <div className="bigmark warn">!</div>
+          <div className="stackv">
             <h1>This link has expired</h1>
-            <p>A reset link works once and for 15 minutes. It may already have been used, or it is too old.</p>
-            <ol className="next left">
+            <p style={{ margin: 0 }}>A reset link works once and for 15 minutes. It may already have been used, or it is too old.</p>
+            <ol style={{ margin: 0, paddingLeft: 20 }}>
               <li>Open Mars Cosmos on your shop PC.</li>
               <li>Choose the Owner and tap Forgot PIN.</li>
               <li>Open the new email and use the new link.</li>
             </ol>
-            <button type="button" className="link" onClick={() => setView('form')}>Back to the form</button>
+            <button type="button" className="btn sm" onClick={() => setView('form')}>Back to the form</button>
           </div>
         )}
       </div>

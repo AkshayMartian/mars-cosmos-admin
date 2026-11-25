@@ -1,178 +1,131 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ADMINS, AUDIT, KEYS, LICENCES, MESSAGES, PIN_RESETS, PLANS, SHOPS } from '../data/sample'
-import { LinkBtn, ListTable, OnboardLink, PageHead, Pill } from '../components/ui'
-import { NAV } from '../nav'
-
-const sub = (path: string) => NAV.find((n) => n.path === path)!.blurb
-const Cell = ({ children, strong }: { children: React.ReactNode; strong?: boolean }) => <td>{strong ? <b>{children}</b> : children}</td>
-
-export function Shops() {
-  const statusOf = { 'Active': 'active', 'Waiting to activate': 'waiting', 'Ending soon': 'ending', 'Expired': 'expired', 'Suspended': 'suspended' } as Record<string, string>
-  return (
-    <>
-      <PageHead title="Shops" sub={sub('/shops')}><OnboardLink /></PageHead>
-      <ListTable rows={SHOPS} searchHint="Shop, owner, mobile, GST number or key" text={(s) => `${s.name} ${s.owner} ${s.mobile} ${s.city}`}
-        filters={[
-          { label: 'Status', options: ['All', ...Object.keys(statusOf)], match: (s, v) => s.status === statusOf[v] },
-          { label: 'Plan', options: ['All plans', 'Starter', 'Growth', 'Trial'], match: (s, v) => s.plan === v }
-        ]}
-        head={['Shop', 'City', 'Plan', 'Licence', 'App', 'Last seen', 'Open']}
-        row={(s) => (
-          <>
-            <td><b>{s.name}</b><div className="muted small">{s.owner} · {s.mobile}</div></td>
-            <Cell>{s.city}</Cell>
-            <Cell>{s.plan} · {s.backup}</Cell>
-            <td><Pill tone={s.licenceTone}>{s.licence}</Pill></td>
-            <td><Pill tone={s.appTone}>{s.app}</Pill></td>
-            <Cell>{s.lastSeen}</Cell>
-            <td><LinkBtn to={`/shops/${s.id}`}>Open</LinkBtn></td>
-          </>
-        )} />
-    </>
-  )
-}
-
-export function ActivationKeys() {
-  return (
-    <>
-      <PageHead title="Activation keys" sub={sub('/activation-keys')}><OnboardLink /></PageHead>
-      <ListTable rows={KEYS} searchHint="Key, shop or mobile" text={(k) => `${k.key} ${k.shop} ${k.mobile}`}
-        filters={[
-          { label: 'Status', options: ['All', 'Issued', 'Activated', 'Revoked'], match: (k, v) => k.status.startsWith(v) },
-          { label: 'WhatsApp', options: ['All', 'Delivered', 'Sent', 'Failed'], match: (k, v) => k.wa.startsWith(v) }
-        ]}
-        head={['Key', 'Shop', 'Owner mobile', 'Status', 'WhatsApp', 'Issued', 'Activated on', '']}
-        row={(k) => (
-          <>
-            <td className="mono">{k.key}</td><Cell strong>{k.shop}</Cell><Cell>{k.mobile}</Cell>
-            <td><Pill tone={k.tone}>{k.status}</Pill></td><td><Pill tone={k.waTone}>{k.wa}</Pill></td>
-            <Cell>{k.issued}</Cell><Cell>{k.pc}</Cell>
-            <td className="acts">{k.actions.map((a) => <LinkBtn key={a}>{a}</LinkBtn>)}</td>
-          </>
-        )}
-        note="Keys are shown masked. The owner enters the full key and the same mobile number in the app, once. Resend uses the number on the shop record." />
-    </>
-  )
-}
-
-export function Licences() {
-  return (
-    <>
-      <PageHead title="Licences" sub={sub('/licences')} />
-      <ListTable rows={LICENCES} searchHint="Shop or key" text={(l) => `${l.shop} ${l.city}`}
-        filters={[
-          { label: 'Status', options: ['All', 'Active', 'Ending in 14 days', 'Expired', 'Trial'], match: (l, v) => (v === 'Ending in 14 days' ? l.status.startsWith('Ends') : l.status.startsWith(v)) },
-          { label: 'Plan', options: ['All plans', 'Starter', 'Growth', 'Trial'], match: (l, v) => l.plan === v }
-        ]}
-        head={['Shop', 'Plan', 'Backup', 'Counters', 'Valid till', 'Status', 'Last check', '']}
-        row={(l) => (
-          <>
-            <td><b>{l.shop}</b><div className="muted small">{l.city}</div></td>
-            <Cell>{l.plan}</Cell><Cell>{l.backup}</Cell><Cell>{l.counters}</Cell><Cell>{l.till}</Cell>
-            <td><Pill tone={l.tone}>{l.status}</Pill></td><Cell>{l.check}</Cell>
-            <td>{l.action && <LinkBtn>{l.action}</LinkBtn>}</td>
-          </>
-        )}
-        note="Renewal over the internet reaches the app by itself. For a shop with no internet, issue a renewal code here and read it out; the owner types it into the app." />
-    </>
-  )
-}
-
-export function PinResets() {
-  return (
-    <>
-      <PageHead title="PIN resets" sub={sub('/pin-resets')} />
-      <ListTable rows={PIN_RESETS} searchHint="Shop" text={(r) => r.shop}
-        filters={[{ label: 'Status', options: ['All', 'Waiting for the owner', 'New PIN saved', 'Applied on the PC', 'Expired'], match: (r, v) => r.status === v }]}
-        head={['Shop', 'Requested', 'From PC', 'Email sent to', 'Status', 'Finished']}
-        row={(r) => (
-          <>
-            <Cell strong>{r.shop}</Cell><Cell>{r.at}</Cell><td className="mono">{r.pc}</td><Cell>{r.email}</Cell>
-            <td><Pill tone={r.tone}>{r.status}</Pill></td><Cell>{r.done}</Cell>
-          </>
-        )}
-        note={<>Watch for: three or more requests for one shop in 24 hours (shown on the Dashboard). Requests are limited to 3 per hour, links work once, and every step is in the audit log. The page the owner sees: <Link to="/reset-pin">open the PIN reset page</Link>.</>} />
-    </>
-  )
-}
-
-export function Messages() {
-  return (
-    <>
-      <PageHead title="Messages" sub={sub('/messages')} />
-      <ListTable rows={MESSAGES} searchHint="Shop or recipient" text={(m) => `${m.shop} ${m.to}`}
-        filters={[
-          { label: 'Type', options: ['All', 'Activation key', 'Verification code', 'PIN reset email', 'PIN changed'], match: (m, v) => m.type === v },
-          { label: 'Channel', options: ['All', 'WhatsApp', 'Email', 'SMS'], match: (m, v) => m.channel === v },
-          { label: 'Status', options: ['All', 'Delivered', 'Sent', 'Failed'], match: (m, v) => m.status.startsWith(v) }
-        ]}
-        head={['Time', 'Shop', 'Type', 'Channel', 'To', 'Status', '']}
-        row={(m) => (
-          <>
-            <Cell>{m.time}</Cell><Cell strong>{m.shop}</Cell><Cell>{m.type}</Cell><Cell>{m.channel}</Cell><Cell>{m.to}</Cell>
-            <td><Pill tone={m.tone}>{m.status}</Pill></td><td>{m.action && <LinkBtn>{m.action}</LinkBtn>}</td>
-          </>
-        )}
-        note="Recipients are always masked. Failed messages can be retried; a failed WhatsApp key shows on the Dashboard until it is fixed." />
-    </>
-  )
-}
-
-export function AuditLog() {
-  return (
-    <>
-      <PageHead title="Audit log" sub={sub('/audit-log')} />
-      <ListTable rows={AUDIT} searchHint="Shop, person or action" text={(a) => `${a.who} ${a.action} ${a.shop} ${a.detail}`}
-        filters={[
-          { label: 'Action', options: ['All', 'Shop created', 'Key sent', 'App activated', 'PC released', 'Licence renewed', 'PIN reset', 'Sign-in'], match: (a, v) => a.action.toLowerCase().includes(v.toLowerCase().replace(' sent', '')) },
-          { label: 'Date', options: ['Last 7 days', 'Today', 'Last 30 days'], match: () => true }
-        ]}
-        head={['Time', 'Who', 'Action', 'Shop', 'Details']}
-        row={(a) => <><Cell>{a.time}</Cell><Cell>{a.who}</Cell><Cell strong>{a.action}</Cell><Cell>{a.shop}</Cell><Cell>{a.detail}</Cell></>} />
-    </>
-  )
-}
+import { currentUser } from '../auth'
+import { Chip, Field, Modal, SampleNote, toast } from '../components/ui'
+import { ADDONS, addAudit, addonName, dOnly, dt, inr, PLANS, uid, update, useStore, type State } from '../store'
 
 export function Plans() {
+  const { shops } = useStore()
   return (
     <>
-      <PageHead title="Plans" sub={sub('/plans')}><button className="btn primary" type="button">+ New plan</button></PageHead>
-      <section className="plans">
-        {PLANS.map((p) => (
-          <div className="card plan" key={p.name}>
-            <div className="row between"><h2>{p.name}</h2><span className="pill mute">{p.count}</span></div>
-            <div className="price">{p.price}</div>
-            <ul>{p.lines.map((l) => <li key={l}>{l}</li>)}</ul>
-            <LinkBtn>Edit plan</LinkBtn>
-          </div>
-        ))}
-      </section>
-      <p className="note">Prices marked [PRICE] are still to be decided. Changing a plan affects new shops and renewals, not licences already issued.</p>
+      <div className="head"><h1>Plans &amp; add-ons</h1></div>
+      <div className="panel"><h2>Plans</h2>
+        <div className="tw"><table><thead><tr><th>Plan</th><th className="r">Price / year</th><th className="r">Counters</th><th>Included</th><th className="r">Shops</th></tr></thead><tbody>
+          {PLANS.map((p) => <tr key={p.k}><td><b>{p.n}</b></td><td className="r num">{inr(p.year)}</td><td className="r num">{p.counters}</td><td>{p.inc.map(addonName).join(', ')}</td><td className="r num">{shops.filter((s) => s.plan === p.k).length}</td></tr>)}
+        </tbody></table></div>
+      </div>
+      <div className="panel"><h2>Add-ons</h2>
+        <div className="tw"><table><thead><tr><th>Add-on</th><th>What it does</th><th className="r">Price / month</th><th>Internet</th><th className="r">Shops using</th></tr></thead><tbody>
+          {ADDONS.map((a) => <tr key={a.k}><td><b>{a.n}</b></td><td>{a.d}</td><td className="r num">{a.price ? inr(a.price) : 'Free'}</td><td>{a.net ? 'Needed' : 'Not needed'}</td><td className="r num">{shops.filter((s) => s.addons.includes(a.k)).length}</td></tr>)}
+        </tbody></table></div>
+        <p className="sample">Example prices. The final prices are set by the Admin; WhatsApp add-ons include Meta’s per-message cost.</p>
+      </div>
     </>
   )
 }
 
-export function AdminUsers() {
+export function Releases() {
+  const { releases, shops } = useStore()
+  const [open, setOpen] = useState(false)
+  const latest = releases[0]!.v
+  const counts: Record<string, number> = {}
+  shops.forEach((s) => s.devices.forEach((d) => { counts[d.ver] = (counts[d.ver] ?? 0) + 1 }))
   return (
     <>
-      <PageHead title="Admin users" sub={sub('/admin-users')}><button className="btn primary" type="button">+ Invite admin</button></PageHead>
-      <div className="card table-card">
-        <div className="scroll">
-          <table>
-            <thead><tr>{['Name', 'Email', 'Role', 'Last sign-in', 'Status', ''].map((h, i) => <th key={i}>{h}</th>)}</tr></thead>
-            <tbody>
-              {ADMINS.map((a) => (
-                <tr key={a.email}>
-                  <Cell strong>{a.name}</Cell><Cell>{a.email}</Cell><td><Pill tone={a.role === 'Admin' ? 'ok' : 'mute'}>{a.role}</Pill></td><Cell>{a.last}</Cell>
-                  <td><Pill tone="ok">Active</Pill></td><td className="acts">{a.actions.map((x) => <LinkBtn key={x}>{x}</LinkBtn>)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="muted small">Sample data · showing {ADMINS.length} rows</div>
+      <div className="head"><h1>App releases</h1><button type="button" className="btn p" onClick={() => setOpen(true)}>+ New release</button></div>
+      <div className="kpis">{Object.entries(counts).sort().reverse().map(([v, n]) => <div className="kpi" key={v}><b>{n}</b><span>PCs on {v}{v === latest ? ' (latest)' : ''}</span></div>)}</div>
+      <div className="panel">
+        <div className="tw"><table><thead><tr><th>Version</th><th>Date</th><th>What changed</th><th>Sent to</th></tr></thead><tbody>
+          {releases.map((r) => <tr key={r.v}><td className="mono"><b>{r.v}</b></td><td>{dOnly(r.date)}</td><td>{r.notes}</td><td>{r.rollout}</td></tr>)}
+        </tbody></table></div>
+        <p className="muted" style={{ margin: 0 }}>The shop’s app checks for a new version once a day and shows “Update available”. Send a release to a few shops first, then to all.</p>
       </div>
-      <p className="note"><b>Roles.</b> Admin: everything, including plans and users. Support: view shops, resend keys, release a PC, issue renewal codes. No one can read an owner PIN or password; they are never stored in a readable form.</p>
+      <SampleNote />
+      {open && <ReleaseModal onClose={() => setOpen(false)} />}
+    </>
+  )
+}
+
+function ReleaseModal({ onClose }: { onClose: () => void }) {
+  const [v, setV] = useState('1.0.3')
+  const [notes, setNotes] = useState('')
+  const [rollout, setRollout] = useState('Pilot shop only')
+  const by = currentUser()?.name ?? '—'
+  return (
+    <Modal onClose={onClose}>
+      <h2>New app release</h2>
+      <Field label="Version" id="r-v"><input id="r-v" type="text" value={v} onChange={(e) => setV(e.target.value)} /></Field>
+      <div className="f"><label htmlFor="r-n">What changed</label><textarea id="r-n" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+      <div className="f"><label htmlFor="r-r">Send to</label><select id="r-r" value={rollout} onChange={(e) => setRollout(e.target.value)}><option>Pilot shop only</option><option>10% of shops</option><option>All shops</option></select></div>
+      <div className="mfoot"><button type="button" className="btn" onClick={onClose}>Cancel</button>
+        <button type="button" className="btn p" onClick={() => { if (!v.trim()) return; update((s) => { s.releases.unshift({ v: v.trim(), date: Date.now(), notes, rollout }); addAudit(s, by, 'App released', null, v.trim()) }); toast('Release ' + v.trim() + ' published'); onClose() }}>Publish release</button></div>
+    </Modal>
+  )
+}
+
+export function Payments() {
+  const { invoices, shops } = useStore()
+  const by = currentUser()?.name ?? '—'
+  return (
+    <>
+      <div className="head"><div><h1>Payments</h1><div className="muted">Can come after the main screens.</div></div></div>
+      <div className="panel"><div className="tw"><table><thead><tr><th>Invoice</th><th>Shop</th><th className="r">Amount</th><th>Date</th><th>Status</th><th /></tr></thead><tbody>
+        {invoices.map((i) => (
+          <tr key={i.id}><td className="mono">{i.no}</td><td>{shops.find((s) => s.id === i.shop)?.name}</td><td className="r num">{inr(i.amount)}</td><td>{dOnly(i.date)}</td>
+            <td>{i.paid ? <Chip tone="good">Paid</Chip> : i.due < Date.now() ? <Chip tone="bad">Overdue</Chip> : <Chip tone="warn">Due</Chip>}</td>
+            <td>{!i.paid && <button type="button" className="btn sm" onClick={() => { update((s: State) => { s.invoices.find((x) => x.id === i.id)!.paid = true; addAudit(s, by, 'Invoice paid', i.shop, i.no) }); toast(i.no + ' marked paid') }}>Mark paid</button>}</td></tr>
+        ))}
+      </tbody></table></div></div>
+      <SampleNote />
+    </>
+  )
+}
+
+export function Team() {
+  const { team } = useStore()
+  const [open, setOpen] = useState(false)
+  const [f, setF] = useState({ name: '', email: '', role: 'Support' as 'Admin' | 'Support' | 'Sales' })
+  const by = currentUser()?.name ?? '—'
+  return (
+    <>
+      <div className="head"><h1>Team</h1><button type="button" className="btn p" onClick={() => setOpen(true)}>+ Add team member</button></div>
+      <div className="panel">
+        <div className="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead><tbody>
+          {team.map((u) => <tr key={u.id}><td>{u.name}</td><td className="mono">{u.email}</td><td>{u.role}</td><td><Chip tone={u.active ? 'good' : 'grey'}>{u.active ? 'Active' : 'Off'}</Chip></td></tr>)}
+        </tbody></table></div>
+        <div className="tw"><table><thead><tr><th>Role</th><th>Can do</th></tr></thead><tbody>
+          <tr><td><b>Admin</b></td><td>Everything, including plans, prices, team and app releases</td></tr>
+          <tr><td><b>Support</b></td><td>See shops, devices, activation keys, release PC, notes, WhatsApp logs</td></tr>
+          <tr><td><b>Sales</b></td><td>Onboard shops, trials, renew, send activation keys</td></tr>
+        </tbody></table></div>
+      </div>
+      <SampleNote />
+      {open && (
+        <Modal onClose={() => setOpen(false)}>
+          <h2>Add team member</h2>
+          <div className="row"><Field label="Name" id="u-n"><input id="u-n" type="text" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field><Field label="Email" id="u-e"><input id="u-e" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field></div>
+          <div className="f"><label htmlFor="u-r">Role</label><select id="u-r" value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as typeof f.role })}><option>Support</option><option>Sales</option><option>Admin</option></select></div>
+          <div className="mfoot"><button type="button" className="btn" onClick={() => setOpen(false)}>Cancel</button>
+            <button type="button" className="btn p" onClick={() => { const n = f.name.trim(), e = f.email.trim().toLowerCase(); if (!n || !e) return; update((s) => { s.team.push({ id: uid('u'), name: n, email: e, role: f.role, active: true }); addAudit(s, by, 'Team member added', null, n) }); toast('Added'); setOpen(false); setF({ name: '', email: '', role: 'Support' }) }}>Add</button></div>
+        </Modal>
+      )}
+    </>
+  )
+}
+
+export function Audit() {
+  const { audit, shops } = useStore()
+  const [q, setQ] = useState('')
+  const name = (id: string | null) => shops.find((s) => s.id === id)?.name ?? ''
+  const list = audit.filter((a) => !q || `${a.by} ${a.action} ${a.details} ${name(a.shop)}`.toLowerCase().includes(q.toLowerCase()))
+  return (
+    <>
+      <div className="head"><h1>Audit log</h1></div>
+      <div className="panel"><div className="f"><label htmlFor="aq">Search</label><input id="aq" type="text" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        <div className="tw"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Shop</th><th>Details</th></tr></thead><tbody>
+          {list.map((a, i) => <tr key={i}><td>{dt(a.at)}</td><td>{a.by}</td><td>{a.action}</td><td>{a.shop && <Link to={`/shops/${a.shop}`}>{name(a.shop)}</Link>}</td><td>{a.details}</td></tr>)}
+        </tbody></table></div>
+      </div>
     </>
   )
 }
