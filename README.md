@@ -19,6 +19,8 @@ npm run typecheck
 npm run build
 ```
 
+**What the web app has today:** all 13 pages of the design, built in `web/src/pages/`: sign-in (two steps), Dashboard, Onboard a shop (live validation, mobile and email code steps), Shops, Shop detail (4 tabs), Activation keys, Licences, PIN resets, Messages, Plans, Admin users, Audit log, and the public owner PIN-reset page at `/reset-pin`. They show **sample data** from `web/src/data/sample.ts` (marked "Sample data" on each page); sign-in is a browser-tab placeholder and any 6-digit code verifies. Nothing is saved or sent until the server endpoints below are built; each page then swaps its sample import for an API call.
+
 Without `MONGODB_URI` the server still starts (only `/health` works). The web app's Dashboard shows whether the server and database are reachable.
 
 ### Create the database (MongoDB Atlas)
