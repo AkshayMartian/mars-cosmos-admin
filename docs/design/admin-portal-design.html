@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MARS Admin Portal: design preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+body{margin:0;background:#F5F3F0;font-family:'Figtree','Segoe UI',system-ui,sans-serif}
+a{color:#8A3216}a:hover{color:#B4441F}
+button,input,select,textarea{font-family:inherit;font-size:15px;color:#1C1917}
+[hidden]{display:none!important}
+.bar{position:sticky;top:0;z-index:10;background:#0F0D0C;color:#E7E5E4;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:10px 16px}
+.bar b{font-family:'Bricolage Grotesque',sans-serif;font-size:16px;margin-right:6px}
+.bar span.note{font-size:12px;color:#A8A29E;margin-left:auto}
+.bar a{color:#E7E5E4;text-decoration:none;padding:6px 12px;border-radius:8px;font-size:14px;font-weight:600}
+.bar a:hover{background:#2C2724;color:#FFFFFF}
+.bar a[aria-current="page"]{background:#B4441F;color:#FFFFFF}
+</style>
+</head>
+<body>
+<div class="bar" role="navigation" aria-label="Screens"><b>MARS Admin Portal · design preview</b><a href="#login" data-tab="login">Login</a><a href="#dashboard" data-tab="dashboard">Dashboard</a><a href="#new-shop" data-tab="new-shop">Onboard a shop</a><a href="#shops" data-tab="shops">Shops</a><a href="#shop-detail" data-tab="shop-detail">Shop detail</a><a href="#reset-pin" data-tab="reset-pin">Owner PIN reset page</a><span class="note">Sample data. Use the left menu on every page to open the other pages.</span></div>
+<section id="screen-login" class="screen" hidden aria-label="Login">
+
+<div style="min-height:860px;display:flex;flex-wrap:wrap;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.5">
+
+  <section aria-label="MARS" style="flex:1 1 420px;background:#1C1917;color:#F5F5F4;padding:56px 48px;display:flex;flex-direction:column;justify-content:space-between;gap:32px;box-sizing:border-box">
+    <div style="display:flex;align-items:center;gap:12px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px">
+      <svg width="36" height="36" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>
+      MARS Admin
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:420px">
+      <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:40px;font-weight:800;line-height:1.1;letter-spacing:-0.01em">Onboard shops. Keep every licence in order.</h2>
+      <p style="margin:0;color:#C9C3BD">Create shops, send activation keys, renew licences, release PCs and watch PIN resets, in one place.</p>
+    </div>
+    <div style="color:#A8A29E;font-size:13px">For MARS staff only. Every action is written to the audit log.</div>
+  </section>
+
+  <main style="flex:1 1 480px;display:flex;align-items:center;justify-content:center;padding:48px 24px;box-sizing:border-box">
+    <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:18px">
+
+      <div data-if="step.one" style="display:contents">
+        <div>
+          <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800">Sign in</h1>
+          <div style="color:#57534E">Use your MARS staff account.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label for="em" style="font-size:14px;font-weight:600;color:#57534E">Email</label>
+          <input id="em" type="email" value="arif@marstechnolabs.in" style="min-height:50px;padding:0 14px;border:1px solid #8A837C;border-radius:10px;background:#FFFFFF"></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label for="pw" style="font-size:14px;font-weight:600;color:#57534E">Password</label>
+          <input id="pw" type="password" value="••••••••••••" style="min-height:50px;padding:0 14px;border:1px solid #8A837C;border-radius:10px;background:#FFFFFF"></div>
+        <button type="button" data-act="next" style="min-height:52px;border-radius:12px;border:0;background:#B4441F;color:#FFFFFF;font-weight:700;font-size:17px;cursor:pointer">Continue</button>
+        <a href="#" style="align-self:center;font-weight:600;font-size:14px">Forgot password?</a>
+      </div>
+
+      <div data-if="step.two" style="display:contents">
+        <div>
+          <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800">Check your phone</h1>
+          <div style="color:#57534E">We sent a 6-digit code to 98••••0114. It works for 5 minutes.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px"><label for="otp" style="font-size:14px;font-weight:600;color:#57534E">Code</label>
+          <input id="otp" inputmode="numeric" maxlength="6" value="204815" style="min-height:56px;padding:0 14px;border:1px solid #8A837C;border-radius:10px;background:#FFFFFF;font-size:24px;letter-spacing:.4em"></div>
+        <a href="#dashboard" style="min-height:52px;border-radius:12px;background:#B4441F;color:#FFFFFF;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center;text-decoration:none">Sign in</a>
+        <button type="button" data-act="back" style="align-self:center;background:transparent;border:0;color:#8A3216;font-weight:600;text-decoration:underline;cursor:pointer;font-size:14px">Use a different account</button>
+      </div>
+
+      <div style="font-size:13px;color:#57534E;border-top:1px solid #E2DDD6;padding-top:14px">After 5 wrong attempts the account is locked for 15 minutes.</div>
+    </div>
+  </main>
+</div>
+</section>
+<section id="screen-dashboard" class="screen" hidden aria-label="Main">
+
+<div style="display:flex;flex-wrap:wrap;min-height:980px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+
+  <nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>
+      MARS Admin
+    </div>
+    <a href="#dashboard" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Dashboard</a>
+    <a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+    <a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+    <a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+    <a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+    <a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+    <a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+    <div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+    <a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+    <a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+    <a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+    <div style="flex:1"></div>
+    <div style="padding:12px;border-radius:10px;background:#2C2724;font-size:13px;color:#C9C3BD">Signed in as<br><b style="color:#F5F5F4;font-size:14px">Arif · Admin</b></div>
+  </nav>
+
+  <main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:24px;box-sizing:border-box">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Dashboard</h1>
+        <div style="color:#57534E">Shops waiting on you, licences running out, and recent activity.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:#EEEBE6;color:#57534E">Sample data</span>
+        <a href="#new-shop" style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:10px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:700">+ Onboard a shop</a>
+      </div>
+    </header>
+
+    <section aria-label="Key numbers" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px">
+      <div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:18px">
+        <div style="color:#57534E;font-size:13px;font-weight:600">Active shops</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:38px;font-weight:800">24</div>
+        <div style="color:#15803D;font-size:13px;font-weight:600">3 joined this month</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:18px">
+        <div style="color:#57534E;font-size:13px;font-weight:600">Waiting to activate</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:38px;font-weight:800">5</div>
+        <div style="color:#92400E;font-size:13px;font-weight:600">2 for more than 3 days</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:18px">
+        <div style="color:#57534E;font-size:13px;font-weight:600">Licences ending in 14 days</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:38px;font-weight:800">3</div>
+        <div style="color:#B91C1C;font-size:13px;font-weight:600">1 ends this week</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:18px">
+        <div style="color:#57534E;font-size:13px;font-weight:600">PIN reset requests (7 days)</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:38px;font-weight:800">2</div>
+        <div style="color:#57534E;font-size:13px;font-weight:600">Both completed</div>
+      </div>
+    </section>
+
+    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+      <section aria-label="Needs attention" style="flex:1 1 420px;min-width:0;background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:6px">
+        <h2 style="margin:0 0 6px;font-size:18px">Needs attention</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #E2DDD6">
+          <div><b>Shree Textiles</b><div style="color:#57534E;font-size:14px">Key sent 4 days ago, not activated yet</div></div>
+          <a href="#shop-detail" style="flex:none;min-height:40px;display:inline-flex;align-items:center;padding:0 14px;border:1px solid #E2DDD6;border-radius:10px;text-decoration:none;font-weight:600;color:#1C1917">Resend key</a>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #E2DDD6">
+          <div><b>Raj Fashion</b><div style="color:#57534E;font-size:14px">Licence ends in 5 days (Starter, cloud backup)</div></div>
+          <a href="#shop-detail" style="flex:none;min-height:40px;display:inline-flex;align-items:center;padding:0 14px;border:1px solid #E2DDD6;border-radius:10px;text-decoration:none;font-weight:600;color:#1C1917">Renew</a>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #E2DDD6">
+          <div><b>Style Hub</b><div style="color:#57534E;font-size:14px">3 PIN reset requests in 24 hours</div></div>
+          <a href="#shop-detail" style="flex:none;min-height:40px;display:inline-flex;align-items:center;padding:0 14px;border:1px solid #E2DDD6;border-radius:10px;text-decoration:none;font-weight:600;color:#1C1917">Review</a>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #E2DDD6">
+          <div><b>Nikk Store</b><div style="color:#57534E;font-size:14px">WhatsApp message failed: number not on WhatsApp</div></div>
+          <a href="#shop-detail" style="flex:none;min-height:40px;display:inline-flex;align-items:center;padding:0 14px;border:1px solid #E2DDD6;border-radius:10px;text-decoration:none;font-weight:600;color:#1C1917">Fix</a>
+        </div>
+      </section>
+
+      <section aria-label="Recent onboarding" style="flex:1.3 1 520px;min-width:0;background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:18px">Recent onboarding</h2><a href="#shops" style="font-weight:600">All shops</a></div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase"><th style="padding:8px 10px;background:#EEEBE6">Shop</th><th style="padding:8px 10px;background:#EEEBE6">Owner</th><th style="padding:8px 10px;background:#EEEBE6">City</th><th style="padding:8px 10px;background:#EEEBE6">Status</th></tr></thead>
+            <tbody>
+              <tr><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><b>Raj Fashion</b></td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Rajesh Patel</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Ahmedabad</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803D">Active</span></td></tr>
+              <tr><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><b>Shree Textiles</b></td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Meena Shah</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Surat</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#FEF3C7;color:#92400E">Key sent</span></td></tr>
+              <tr><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><b>Style Hub</b></td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Imran Khan</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Vadodara</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803D">Active</span></td></tr>
+              <tr><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><b>Nikk Store</b></td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Nikhil Joshi</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Rajkot</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#FEE2E2;color:#B91C1C">Send failed</span></td></tr>
+              <tr><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><b>Urban Threads</b></td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Kavita Mehta</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6">Gandhinagar</td><td style="padding:12px 10px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#EEEBE6;color:#57534E">Pending review</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <section aria-label="How a shop goes live" style="background:#FBEADF;border-radius:14px;padding:20px;display:flex;flex-wrap:wrap;gap:16px;align-items:stretch">
+      <div style="flex:1 1 100%;font-weight:700;color:#8A3216">How a shop goes live</div>
+      <div style="flex:1 1 200px;background:#FFFFFF;border-radius:12px;padding:14px"><b style="color:#8A3216">1 · Form</b><div style="font-size:14px;color:#57534E">Owner and shop details, mobile and email verified.</div></div>
+      <div style="flex:1 1 200px;background:#FFFFFF;border-radius:12px;padding:14px"><b style="color:#8A3216">2 · Key</b><div style="font-size:14px;color:#57534E">Activation key is created and sent on WhatsApp.</div></div>
+      <div style="flex:1 1 200px;background:#FFFFFF;border-radius:12px;padding:14px"><b style="color:#8A3216">3 · Activate</b><div style="font-size:14px;color:#57534E">Owner enters key and mobile in the app.</div></div>
+      <div style="flex:1 1 200px;background:#FFFFFF;border-radius:12px;padding:14px"><b style="color:#8A3216">4 · Shop settings</b><div style="font-size:14px;color:#57534E">App opens Settings → Shop, already filled in.</div></div>
+    </section>
+  </main>
+</div>
+</section>
+<section id="screen-new-shop" class="screen" hidden aria-label="NewShop">
+
+<div style="display:flex;flex-wrap:wrap;min-height:1620px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+
+  <nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>
+      MARS Admin
+    </div>
+    <a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+    <a href="#new-shop" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Onboard a shop</a>
+    <a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+    <a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+    <a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+    <a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+    <a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+    <div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+    <a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+    <a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+    <a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+  </nav>
+
+  <main style="flex:999 1 560px;min-width:0;padding:28px 32px 48px;display:flex;flex-direction:column;gap:22px;box-sizing:border-box">
+    <header>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Onboard a shop</h1>
+      <div style="color:#57534E;max-width:70ch">Fill this with the owner (or send them the link). Mobile and email must be verified before the activation key can be created.</div>
+    </header>
+
+    <div data-if="created" style="display:contents">
+      <div role="status" style="background:#DCFCE7;border:1px solid #86C99A;border-radius:14px;padding:20px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-weight:700;color:#14532D;font-size:17px">Shop created. Activation key sent on WhatsApp.</div>
+          <div style="color:#14532D">Sent to +91 98•••••210. The owner enters it, with the same mobile number, in the app.</div>
+          <div style="margin-top:10px;display:inline-block;padding:10px 16px;border-radius:10px;background:#FFFFFF;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:20px;font-weight:700;letter-spacing:.04em;color:#1C1917">MARS-7K2Q-9XFD-4LPA</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="#shop-detail" style="min-height:44px;display:inline-flex;align-items:center;padding:0 16px;border-radius:10px;background:#14532D;color:#FFFFFF;text-decoration:none;font-weight:700">Open shop</a>
+          <button type="button" data-act="again" style="min-height:44px;padding:0 16px;border-radius:10px;border:1px solid #14532D;background:transparent;color:#14532D;font-weight:700;cursor:pointer">Onboard another</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+      <div style="flex:1 1 640px;min-width:0;display:flex;flex-direction:column;gap:22px">
+
+        <section aria-labelledby="h-owner" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:18px">
+          <h2 id="h-owner" style="margin:0;font-size:18px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#B4441F;color:#FFFFFF;font-size:13px;margin-right:8px">1</span>Owner</h2>
+
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div aria-hidden="true" style="width:72px;height:72px;border-radius:50%;background:#FBEADF;color:#8A3216;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px">RP</div>
+            <div>
+              <button type="button" style="min-height:44px;padding:0 16px;border-radius:10px;border:1px solid #8A837C;background:#FFFFFF;font-weight:600;cursor:pointer">Upload profile photo</button>
+              <div style="font-size:13px;color:#57534E;margin-top:4px">JPG or PNG, up to 2 MB. Optional.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:16px">
+            <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><label for="f-name" style="font-size:13px;font-weight:600;color:#57534E">Full name *</label>
+              <input id="f-name" value="Rajesh Patel" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div>
+            <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><label for="f-mob" style="font-size:13px;font-weight:600;color:#57534E">Mobile number *</label>
+              <div style="display:flex;gap:8px">
+                <input id="f-mob" inputmode="numeric" value="9825000210" style="flex:1;min-width:0;min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF">
+                <div data-if="mobile.idle" style="display:contents"><button type="button" data-act="sendMobile" style="flex:none;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid #B4441F;background:#FFFFFF;color:#8A3216;font-weight:700;cursor:pointer">Send code</button></div>
+                <div data-if="mobile.done" style="display:contents"><span style="flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:8px;background:#DCFCE7;color:#14532D;font-weight:700">✓ Verified</span></div>
+              </div>
+              <div data-if="mobile.sent" style="display:contents"><div style="display:flex;gap:8px;align-items:center">
+                <label for="f-mob-otp" style="font-size:13px;color:#57534E">6-digit code</label>
+                <input id="f-mob-otp" inputmode="numeric" value="482915" style="width:110px;min-height:40px;padding:0 10px;border:1px solid #8A837C;border-radius:8px;letter-spacing:.2em">
+                <button type="button" data-act="verifyMobile" style="min-height:40px;padding:0 14px;border-radius:8px;border:0;background:#B4441F;color:#FFFFFF;font-weight:700;cursor:pointer">Verify</button>
+              </div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:16px">
+            <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><label for="f-mail" style="font-size:13px;font-weight:600;color:#57534E">Email *</label>
+              <div style="display:flex;gap:8px">
+                <input id="f-mail" type="email" value="rajesh@rajfashion.in" style="flex:1;min-width:0;min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF">
+                <div data-if="email.idle" style="display:contents"><button type="button" data-act="sendEmail" style="flex:none;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid #B4441F;background:#FFFFFF;color:#8A3216;font-weight:700;cursor:pointer">Send code</button></div>
+                <div data-if="email.done" style="display:contents"><span style="flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:8px;background:#DCFCE7;color:#14532D;font-weight:700">✓ Verified</span></div>
+              </div>
+              <div data-if="email.sent" style="display:contents"><div style="display:flex;gap:8px;align-items:center">
+                <label for="f-mail-otp" style="font-size:13px;color:#57534E">6-digit code</label>
+                <input id="f-mail-otp" inputmode="numeric" value="731064" style="width:110px;min-height:40px;padding:0 10px;border:1px solid #8A837C;border-radius:8px;letter-spacing:.2em">
+                <button type="button" data-act="verifyEmail" style="min-height:40px;padding:0 14px;border-radius:8px;border:0;background:#B4441F;color:#FFFFFF;font-weight:700;cursor:pointer">Verify</button>
+              </div></div>
+              <div style="font-size:13px;color:#57534E">This address receives the forgot-PIN link. It is never shown in the app.</div>
+            </div>
+            <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><label for="f-pw" style="font-size:13px;font-weight:600;color:#57534E">Portal password *</label>
+              <input id="f-pw" type="password" value="••••••••••" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF">
+              <div style="font-size:13px;color:#57534E">At least 10 characters. For the owner's portal login only, not the 4-digit app PIN.</div></div>
+          </div>
+        </section>
+
+        <section aria-labelledby="h-shop" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:18px">
+          <h2 id="h-shop" style="margin:0;font-size:18px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#B4441F;color:#FFFFFF;font-size:13px;margin-right:8px">2</span>Shop</h2>
+          <div style="display:flex;flex-wrap:wrap;gap:16px">
+            <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><label for="s-name" style="font-size:13px;font-weight:600;color:#57534E">Shop name *</label>
+              <input id="s-name" value="Raj Fashion" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div>
+            <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><label for="s-phone" style="font-size:13px;font-weight:600;color:#57534E">Shop contact number *</label>
+              <input id="s-phone" inputmode="numeric" value="9825000010" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF">
+              <div style="font-size:13px;color:#57534E">Mobile number: 10 digits starting with 6, 7, 8 or 9.</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label for="s-desc" style="font-size:13px;font-weight:600;color:#57534E">Shop description</label>
+            <textarea id="s-desc" rows="3" style="padding:10px 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF;resize:vertical">Menswear and accessories on CG Road since 2009.</textarea></div>
+          <div style="display:flex;flex-wrap:wrap;gap:16px">
+            <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><label for="s-gst" style="font-size:13px;font-weight:600;color:#57534E">GST number</label>
+              <input id="s-gst" value="24AAAAA1111A1Z" aria-invalid="true" aria-describedby="s-gst-e" style="min-height:44px;padding:0 12px;border:2px solid #B91C1C;border-radius:8px;background:#FFFFFF;font-family:'JetBrains Mono',ui-monospace,monospace">
+              <div id="s-gst-e" role="alert" style="font-size:13px;font-weight:600;color:#B91C1C">The GST number is not valid. It has 15 characters, like 24AAAAA1111A1Z5.</div></div>
+            <div style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#57534E">Tips</span>
+              <div style="font-size:14px;color:#57534E;padding-top:4px">The first two digits are the state code (24 = Gujarat). The State below is filled in for you and must match.</div></div>
+          </div>
+        </section>
+
+        <section aria-labelledby="h-addr" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:18px">
+          <h2 id="h-addr" style="margin:0;font-size:18px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#B4441F;color:#FFFFFF;font-size:13px;margin-right:8px">3</span>Shop address</h2>
+          <div style="display:flex;flex-direction:column;gap:6px"><label for="a-line" style="font-size:13px;font-weight:600;color:#57534E">Address *</label>
+            <input id="a-line" value="Shop 4, Titanium City Center, CG Road" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div>
+          <div style="display:flex;flex-wrap:wrap;gap:16px">
+            <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="a-city" style="font-size:13px;font-weight:600;color:#57534E">City *</label>
+              <input id="a-city" value="Ahmedabad" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div>
+            <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="a-state" style="font-size:13px;font-weight:600;color:#57534E">State *</label>
+              <select id="a-state" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>24 Gujarat</option><option>27 Maharashtra</option><option>08 Rajasthan</option></select></div>
+            <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="a-pin" style="font-size:13px;font-weight:600;color:#57534E">Pincode *</label>
+              <input id="a-pin" inputmode="numeric" value="380009" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div>
+          </div>
+        </section>
+
+        <section aria-labelledby="h-plan" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:18px">
+          <h2 id="h-plan" style="margin:0;font-size:18px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#B4441F;color:#FFFFFF;font-size:13px;margin-right:8px">4</span>Plan and licence</h2>
+          <div style="display:flex;flex-wrap:wrap;gap:16px">
+            <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="p-plan" style="font-size:13px;font-weight:600;color:#57534E">Plan</label>
+              <select id="p-plan" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>Starter</option><option>Growth</option></select></div>
+            <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="p-mode" style="font-size:13px;font-weight:600;color:#57534E">Backup mode</label>
+              <select id="p-mode" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>Cloud backup</option><option>Local-only</option></select></div>
+            <div style="flex:1 1 140px;display:flex;flex-direction:column;gap:6px"><label for="p-cnt" style="font-size:13px;font-weight:600;color:#57534E">Counters</label>
+              <input id="p-cnt" inputmode="numeric" value="1" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div>
+            <div style="flex:1 1 140px;display:flex;flex-direction:column;gap:6px"><label for="p-days" style="font-size:13px;font-weight:600;color:#57534E">Valid for (days)</label>
+              <input id="p-days" inputmode="numeric" value="365" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div>
+          </div>
+        </section>
+      </div>
+
+      <aside aria-label="Summary" style="flex:1 1 300px;max-width:380px;min-width:0;display:flex;flex-direction:column;gap:16px">
+        <div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px">
+          <h2 style="margin:0;font-size:17px">Before you submit</h2>
+          <div style="display:flex;align-items:center;gap:10px"><span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#FEF3C7;color:#92400E" data-dot="mobile">•</span><span>Mobile verified</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#FEF3C7;color:#92400E" data-dot="email">•</span><span>Email verified</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#FEE2E2;color:#B91C1C">!</span><span>GST number needs fixing (optional field)</span></div>
+          <button type="button" data-act="submit" data-submit disabled style="min-height:52px;border-radius:10px;border:0;background:#A8A29E;color:#FFFFFF;font-weight:700;font-size:16px;cursor:not-allowed">Create shop and send key</button>
+          <div style="font-size:13px;color:#57534E"><span data-hint>Verify the mobile and the email first.</span></div>
+        </div>
+        <div style="background:#FBEADF;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px">
+          <h2 style="margin:0;font-size:17px;color:#8A3216">What happens next</h2>
+          <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:#3F2315">
+            <li>The shop and owner are saved. The activation key is created.</li>
+            <li>The key is sent to the owner's WhatsApp.</li>
+            <li>The owner installs the app and enters the key and the same mobile number.</li>
+            <li>The app opens <b>Settings → Shop</b> with these details filled in, ready to edit.</li>
+          </ol>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</section>
+<section id="screen-shops" class="screen" hidden aria-label="Shops">
+
+<div style="display:flex;flex-wrap:wrap;min-height:1000px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+
+  <nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>
+      MARS Admin
+    </div>
+    <a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+    <a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+    <a href="#shops" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Shops</a>
+    <a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+    <a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+    <a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+    <a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+    <div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+    <a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+    <a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+    <a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+  </nav>
+
+  <main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Shops</h1>
+        <div style="color:#57534E">Every shop, its licence and whether its app is activated.</div>
+      </div>
+      <a href="#new-shop" style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:10px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:700">+ Onboard a shop</a>
+    </header>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
+      <div style="flex:1 1 300px;display:flex;flex-direction:column;gap:6px"><label for="q" style="font-size:13px;font-weight:600;color:#57534E">Search</label>
+        <input id="q" placeholder="Shop, owner, mobile, GST number or key" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div>
+      <div style="flex:0 1 180px;display:flex;flex-direction:column;gap:6px"><label for="st" style="font-size:13px;font-weight:600;color:#57534E">Status</label>
+        <select id="st" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>Active</option><option>Waiting to activate</option><option>Ending soon</option><option>Expired</option><option>Suspended</option></select></div>
+      <div style="flex:0 1 180px;display:flex;flex-direction:column;gap:6px"><label for="pl" style="font-size:13px;font-weight:600;color:#57534E">Plan</label>
+        <select id="pl" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All plans</option><option>Starter</option><option>Growth</option><option>Trial</option></select></div>
+    </div>
+
+    <div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;overflow:hidden">
+      <div style="overflow-x:auto">
+        <table style="width:100%;min-width:860px;border-collapse:collapse;font-size:14px">
+          <thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase">
+            <th style="padding:12px 16px;background:#EEEBE6">Shop</th><th style="padding:12px 16px;background:#EEEBE6">City</th><th style="padding:12px 16px;background:#EEEBE6">Plan</th><th style="padding:12px 16px;background:#EEEBE6">Licence</th><th style="padding:12px 16px;background:#EEEBE6">App</th><th style="padding:12px 16px;background:#EEEBE6">Last seen</th><th style="padding:12px 16px;background:#EEEBE6"><span style="position:absolute;width:1px;height:1px;overflow:hidden">Open</span></th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><b>Raj Fashion</b><div style="color:#57534E">Rajesh Patel · 98••••0210</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Ahmedabad</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Starter · Cloud</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#FEF3C7;color:#92400E">Ends in 5 days</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Activated</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">2 hours ago</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;text-align:right"><a href="#shop-detail" style="font-weight:700">Open</a></td></tr>
+            <tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><b>Shree Textiles</b><div style="color:#57534E">Meena Shah · 97••••5518</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Surat</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Starter · Local</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#EEEBE6;color:#57534E">Not started</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><span style="color:#92400E;font-weight:600">Key sent, not used</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Never</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;text-align:right"><a href="#shop-detail" style="font-weight:700">Open</a></td></tr>
+            <tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><b>Style Hub</b><div style="color:#57534E">Imran Khan · 98••••7741</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Vadodara</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Growth · Cloud</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803D">Active · 11 months</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Activated · 2 counters</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">12 minutes ago</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;text-align:right"><a href="#shop-detail" style="font-weight:700">Open</a></td></tr>
+            <tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><b>Nikk Store</b><div style="color:#57534E">Nikhil Joshi · 93••••8593</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Rajkot</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Trial</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803D">Trial · 9 days left</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Activated</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Yesterday</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;text-align:right"><a href="#shop-detail" style="font-weight:700">Open</a></td></tr>
+            <tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><b>Urban Threads</b><div style="color:#57534E">Kavita Mehta · 99••••2046</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Gandhinagar</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Starter · Cloud</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#EEEBE6;color:#57534E">Pending review</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">No key yet</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Never</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;text-align:right"><a href="#shop-detail" style="font-weight:700">Open</a></td></tr>
+            <tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><b>Kavya Boutique</b><div style="color:#57534E">Kavya Desai · 98••••3319</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Bhavnagar</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Starter · Local</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#FEE2E2;color:#B91C1C">Expired</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">Blocked until renewed</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6">6 days ago</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;text-align:right"><a href="#shop-detail" style="font-weight:700">Open</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:14px 16px;border-top:1px solid #E2DDD6;color:#57534E;font-size:14px">
+        <span>Showing 1–6 of 24 shops</span>
+        <span style="display:flex;gap:8px"><button type="button" disabled style="min-height:40px;padding:0 14px;border:1px solid #D6D0C8;border-radius:8px;background:#FFFFFF;color:#78716C">Previous</button><button type="button" style="min-height:40px;padding:0 14px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF;font-weight:600;cursor:pointer">Next</button></span>
+      </div>
+    </div>
+  </main>
+</div>
+</section>
+<section id="screen-shop-detail" class="screen" hidden aria-label="ShopDetail">
+
+<div style="display:flex;flex-wrap:wrap;min-height:1240px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+
+  <nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>
+      MARS Admin
+    </div>
+    <a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+    <a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+    <a href="#shops" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Shops</a>
+    <a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+    <a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+    <a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+    <a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+    <div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+    <a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+    <a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+    <a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+  </nav>
+
+  <main style="flex:999 1 560px;min-width:0;padding:24px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+    <div style="font-size:14px;color:#57534E"><a href="#shops" style="font-weight:600">Shops</a> › Raj Fashion</div>
+    <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div aria-hidden="true" style="width:56px;height:56px;border-radius:14px;background:#FBEADF;color:#8A3216;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px">RF</div>
+        <div>
+          <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800;letter-spacing:-0.01em">Raj Fashion</h1>
+          <div style="color:#57534E">Ahmedabad, Gujarat · GST 24AAAAA1111A1Z5</div>
+        </div>
+        <span style="padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;background:#FEF3C7;color:#92400E">Licence ends in 5 days</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="button" style="min-height:44px;padding:0 16px;border-radius:10px;border:1px solid #8A837C;background:#FFFFFF;font-weight:600;cursor:pointer">Suspend shop</button>
+        <button type="button" style="min-height:44px;padding:0 18px;border-radius:10px;border:0;background:#B4441F;color:#FFFFFF;font-weight:700;cursor:pointer">Renew licence</button>
+      </div>
+    </header>
+
+    <div role="tablist" aria-label="Shop sections" style="display:flex;gap:4px;border-bottom:1px solid #E2DDD6;overflow-x:auto">
+      <span role="tab" aria-selected="true" style="padding:10px 16px;border-bottom:3px solid #B4441F;font-weight:700;color:#8A3216;white-space:nowrap">Overview</span>
+      <span role="tab" aria-selected="false" style="padding:10px 16px;color:#57534E;white-space:nowrap">Licence</span>
+      <span role="tab" aria-selected="false" style="padding:10px 16px;color:#57534E;white-space:nowrap">Devices</span>
+      <span role="tab" aria-selected="false" style="padding:10px 16px;color:#57534E;white-space:nowrap">Activity</span>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+      <section aria-label="Shop and owner" style="flex:1.3 1 520px;min-width:0;background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <h2 style="margin:0;font-size:18px">Shop and owner</h2>
+        <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px 24px">
+          <div><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#57534E">Owner</div>Rajesh Patel</div>
+          <div><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#57534E">Owner mobile</div>98250 00210 <span style="color:#15803D;font-weight:700">✓ verified</span></div>
+          <div><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#57534E">Owner email</div>ra•••••@rajfashion.in <span style="color:#15803D;font-weight:700">✓ verified</span></div>
+          <div><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#57534E">Shop contact</div>98250 00010</div>
+          <div style="grid-column:1 / -1"><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#57534E">Address</div>Shop 4, Titanium City Center, CG Road, Ahmedabad, Gujarat 380009</div>
+          <div style="grid-column:1 / -1"><div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#57534E">Description</div>Menswear and accessories on CG Road since 2009.</div>
+        </div>
+        <div style="font-size:13px;color:#57534E;border-top:1px solid #E2DDD6;padding-top:12px">The email is shown masked here too. Only the reset email uses it.</div>
+      </section>
+
+      <div style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:20px">
+        <section aria-label="Activation key" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:18px">Activation key</h2><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803D">Activated</span></div>
+          <div style="padding:12px 14px;border-radius:10px;background:#F5F3F0;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:18px;font-weight:700;letter-spacing:.04em"><span data-key>MARS-7K2Q-••••-••••</span></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button type="button" data-act="toggleKey" style="min-height:40px;padding:0 14px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;font-weight:600;cursor:pointer"><span data-keybtn>Show key</span></button>
+            <button type="button" style="min-height:40px;padding:0 14px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;font-weight:600;cursor:pointer">Resend on WhatsApp</button>
+            <button type="button" style="min-height:40px;padding:0 14px;border-radius:8px;border:1px solid #B91C1C;background:#FFFFFF;color:#B91C1C;font-weight:600;cursor:pointer">Revoke</button>
+          </div>
+          <div style="font-size:13px;color:#57534E">Sent on WhatsApp 12 Nov, delivered. Activated 12 Nov, 11:20.</div>
+        </section>
+
+        <section aria-label="Licence" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+          <h2 style="margin:0;font-size:18px">Licence</h2>
+          <div style="display:flex;justify-content:space-between"><span style="color:#57534E">Plan</span><b>Starter · Cloud backup</b></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#57534E">Counters</span><b>1</b></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#57534E">Valid till</span><b style="color:#92400E">30 Nov 2026 (5 days)</b></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#57534E">Last check by the app</span><b>2 hours ago</b></div>
+          <div style="font-size:13px;color:#57534E;border-top:1px solid #E2DDD6;padding-top:10px">When it ends, the app locks until renewed. The shop's data stays on its PC.</div>
+        </section>
+      </div>
+    </div>
+
+    <section aria-label="Devices" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <h2 style="margin:0;font-size:18px">Devices</h2>
+      <div style="overflow-x:auto">
+        <table style="width:100%;min-width:640px;border-collapse:collapse;font-size:14px">
+          <thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase"><th style="padding:10px 12px;background:#EEEBE6">PC ID</th><th style="padding:10px 12px;background:#EEEBE6">Activated</th><th style="padding:10px 12px;background:#EEEBE6">Last check</th><th style="padding:10px 12px;background:#EEEBE6">Status</th><th style="padding:10px 12px;background:#EEEBE6"><span style="position:absolute;width:1px;height:1px;overflow:hidden">Actions</span></th></tr></thead>
+          <tbody>
+            <tr><td style="padding:12px;border-top:1px solid #E2DDD6;font-family:'JetBrains Mono',ui-monospace,monospace">124D-9CE2-664F</td><td style="padding:12px;border-top:1px solid #E2DDD6">12 Nov 2026</td><td style="padding:12px;border-top:1px solid #E2DDD6">2 hours ago</td><td style="padding:12px;border-top:1px solid #E2DDD6"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803D">In use</span></td><td style="padding:12px;border-top:1px solid #E2DDD6;text-align:right"><button type="button" style="min-height:38px;padding:0 14px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;font-weight:600;cursor:pointer">Release PC</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:13px;color:#57534E">Release PC frees the key so the owner can activate a new or repaired PC. Cloud plan: the data downloads back after activation.</div>
+    </section>
+
+    <section aria-label="Activity" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:6px">
+      <h2 style="margin:0 0 6px;font-size:18px">Activity</h2>
+      <div style="display:flex;gap:14px;padding:10px 0;border-top:1px solid #E2DDD6"><span style="flex:0 0 120px;color:#57534E;font-size:14px">24 Nov, 15:02</span><span>PIN reset applied on PC 124D-9CE2-664F</span></div>
+      <div style="display:flex;gap:14px;padding:10px 0;border-top:1px solid #E2DDD6"><span style="flex:0 0 120px;color:#57534E;font-size:14px">24 Nov, 14:58</span><span>PIN reset link opened and new PIN saved (web page)</span></div>
+      <div style="display:flex;gap:14px;padding:10px 0;border-top:1px solid #E2DDD6"><span style="flex:0 0 120px;color:#57534E;font-size:14px">24 Nov, 14:55</span><span>PIN reset requested from the app. Email sent to ra•••••@rajfashion.in</span></div>
+      <div style="display:flex;gap:14px;padding:10px 0;border-top:1px solid #E2DDD6"><span style="flex:0 0 120px;color:#57534E;font-size:14px">12 Nov, 11:20</span><span>App activated on PC 124D-9CE2-664F</span></div>
+      <div style="display:flex;gap:14px;padding:10px 0;border-top:1px solid #E2DDD6"><span style="flex:0 0 120px;color:#57534E;font-size:14px">12 Nov, 10:41</span><span>Activation key sent on WhatsApp, delivered</span></div>
+      <div style="display:flex;gap:14px;padding:10px 0;border-top:1px solid #E2DDD6"><span style="flex:0 0 120px;color:#57534E;font-size:14px">12 Nov, 10:40</span><span>Shop created by Arif. Mobile and email verified.</span></div>
+    </section>
+  </main>
+</div>
+</section>
+<section id="screen-reset-pin" class="screen" hidden aria-label="ResetPin">
+
+<div style="min-height:860px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.5;display:flex;flex-direction:column;box-sizing:border-box">
+  <header style="background:#1C1917;color:#F5F5F4;padding:14px 24px;display:flex;align-items:center;gap:10px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px">
+    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>
+    Mars Cosmos
+  </header>
+
+  <main style="flex:1;display:flex;align-items:flex-start;justify-content:center;padding:48px 16px">
+    <div style="width:100%;max-width:480px;display:flex;flex-direction:column;gap:16px">
+
+      <div data-if="view.form" style="display:contents">
+        <section aria-labelledby="t1" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:16px">
+          <div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A3216">Raj Fashion · Owner</div>
+            <h1 id="t1" style="margin:4px 0 0;font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:800;letter-spacing:-0.01em">Choose a new PIN</h1>
+          </div>
+          <div style="padding:10px 14px;border-radius:10px;background:#FEF3C7;color:#6B3F0B;font-size:14px">This link works once and expires in <b>14 minutes</b>.</div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label for="pin1" style="font-size:14px;font-weight:600;color:#57534E">New PIN (4 digits)</label>
+            <input id="pin1" type="password" inputmode="numeric" maxlength="4" value="4826" style="min-height:56px;padding:0 14px;border:1px solid #8A837C;border-radius:10px;background:#FFFFFF;font-size:24px;letter-spacing:.5em"></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label for="pin2" style="font-size:14px;font-weight:600;color:#57534E">Confirm new PIN</label>
+            <input id="pin2" type="password" inputmode="numeric" maxlength="4" value="4826" style="min-height:56px;padding:0 14px;border:1px solid #8A837C;border-radius:10px;background:#FFFFFF;font-size:24px;letter-spacing:.5em"></div>
+          <ul style="margin:0;padding-left:20px;color:#57534E;font-size:14px;display:flex;flex-direction:column;gap:2px">
+            <li>Exactly 4 digits.</li>
+            <li>Not an easy PIN like 1111, 1234 or 0000.</li>
+          </ul>
+          <button type="button" data-act="save" style="min-height:54px;border-radius:12px;border:0;background:#B4441F;color:#FFFFFF;font-weight:700;font-size:17px;cursor:pointer">Save new PIN</button>
+          <div style="font-size:13px;color:#57534E">Not you? Close this page. Nothing changes until a PIN is saved.</div>
+        </section>
+        <button type="button" data-act="showExpired" style="align-self:center;background:transparent;border:0;color:#8A3216;font-weight:600;text-decoration:underline;cursor:pointer;font-size:14px">Preview: what an expired link shows</button>
+      </div>
+
+      <div data-if="view.done" style="display:contents">
+        <section role="status" aria-labelledby="t2" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;text-align:center;align-items:center">
+          <div aria-hidden="true" style="width:64px;height:64px;border-radius:50%;background:#DCFCE7;color:#14532D;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700">✓</div>
+          <h1 id="t2" style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:800">PIN saved</h1>
+          <p style="margin:0;color:#57534E">Go back to Mars Cosmos on your shop PC. It picks up the new PIN in a few seconds. Then log in with it.</p>
+          <div style="width:100%;text-align:left;padding:14px 16px;border-radius:12px;background:#F5F3F0;font-size:14px;color:#57534E">We also sent you an email to confirm the change. If this was not you, call MARS support right away.</div>
+          <button type="button" data-act="restart" style="background:transparent;border:0;color:#8A3216;font-weight:600;text-decoration:underline;cursor:pointer;font-size:14px">Back to the form</button>
+        </section>
+      </div>
+
+      <div data-if="view.expired" style="display:contents">
+        <section role="alert" aria-labelledby="t3" style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px">
+          <div aria-hidden="true" style="width:56px;height:56px;border-radius:50%;background:#FEE2E2;color:#B91C1C;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">!</div>
+          <h1 id="t3" style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:800">This link has expired</h1>
+          <p style="margin:0;color:#57534E">A reset link works once and for 15 minutes. It may already have been used, or it is too old.</p>
+          <ol style="margin:0;padding-left:20px;color:#57534E;display:flex;flex-direction:column;gap:4px">
+            <li>Open Mars Cosmos on your shop PC.</li>
+            <li>Choose the Owner and tap <b>Forgot PIN</b>.</li>
+            <li>Open the new email and use the new link.</li>
+          </ol>
+          <button type="button" data-act="restart" style="background:transparent;border:0;color:#8A3216;font-weight:600;text-decoration:underline;cursor:pointer;font-size:14px;align-self:flex-start">Back to the form</button>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</section>
+<section id="screen-activation-keys" class="screen" hidden aria-label="Activation keys">
+<div style="display:flex;flex-wrap:wrap;min-height:900px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+<nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>MARS Admin</div>
+<a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+<a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+<a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+<a href="#activation-keys" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Activation keys</a>
+<a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+<a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+<a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+<div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+<a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+<a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+<a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+</nav>
+<main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+<header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><div><h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Activation keys</h1><div style="color:#57534E;max-width:70ch">Every key sent to an owner, whether it reached WhatsApp, and whether the app was activated with it.</div></div><a href="#new-shop" style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:10px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:700">+ Onboard a shop</a></header>
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end"><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="q1" style="font-size:13px;font-weight:600;color:#57534E">Search</label><input id="q1" placeholder="Key, shop or mobile" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="s1" style="font-size:13px;font-weight:600;color:#57534E">Status</label><select id="s1" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>Issued</option><option>Activated</option><option>Revoked</option></select></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="w1" style="font-size:13px;font-weight:600;color:#57534E">WhatsApp</label><select id="w1" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>Delivered</option><option>Sent</option><option>Failed</option></select></div></div>
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;overflow:hidden"><div style="overflow-x:auto"><table style="width:100%;min-width:900px;border-collapse:collapse;font-size:14px">
+<thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase"><th style="padding:12px 16px;background:#EEEBE6">Key</th><th style="padding:12px 16px;background:#EEEBE6">Shop</th><th style="padding:12px 16px;background:#EEEBE6">Owner mobile</th><th style="padding:12px 16px;background:#EEEBE6">Status</th><th style="padding:12px 16px;background:#EEEBE6">WhatsApp</th><th style="padding:12px 16px;background:#EEEBE6">Issued</th><th style="padding:12px 16px;background:#EEEBE6">Activated on</th><th style="padding:12px 16px;background:#EEEBE6"></th></tr></thead>
+<tbody><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">MARS-7K2Q-••••-••••</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Raj Fashion</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">98••••0210</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Activated</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">12 Nov</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">PC 124D-9CE2-664F</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #B91C1C;background:#FFFFFF;color:#B91C1C;font-weight:600;cursor:pointer;white-space:nowrap">Revoke</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">MARS-4TXP-••••-••••</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Shree Textiles</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">97••••5518</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEF3C7;color:#92400E">Issued, not used</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">21 Nov</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">—</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Resend</button> <button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #B91C1C;background:#FFFFFF;color:#B91C1C;font-weight:600;cursor:pointer;white-space:nowrap">Revoke</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">MARS-9HBD-••••-••••</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Style Hub</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">98••••7741</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Activated</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">3 Nov</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">PC 8B21-0DF4-33A9</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #B91C1C;background:#FFFFFF;color:#B91C1C;font-weight:600;cursor:pointer;white-space:nowrap">Revoke</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">MARS-2WQE-••••-••••</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Nikk Store</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">93••••8593</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEF3C7;color:#92400E">Issued, not used</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEE2E2;color:#B91C1C">Failed: not on WhatsApp</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">23 Nov</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">—</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Fix number</button> <button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Resend</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">MARS-6LNC-••••-••••</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Kavya Boutique</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">98••••3319</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEE2E2;color:#B91C1C">Revoked</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">2 Oct</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">—</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">MARS-5RMA-••••-••••</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Urban Threads</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">99••••2046</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#EEEBE6;color:#57534E">Not created yet</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#EEEBE6;color:#57534E">—</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">—</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">—</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Review request</button></td></tr></tbody></table></div>
+<div style="padding:14px 16px;border-top:1px solid #E2DDD6;color:#57534E;font-size:14px">Sample data · showing 6 rows</div></div>
+<div style="background:#FBEADF;border-radius:12px;padding:14px 16px;color:#3F2315;font-size:14px">Keys are shown masked. The owner enters the full key and the same mobile number in the app, once. Resend uses the number on the shop record.</div>
+</main></div></section>
+<section id="screen-licences" class="screen" hidden aria-label="Licences">
+<div style="display:flex;flex-wrap:wrap;min-height:900px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+<nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>MARS Admin</div>
+<a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+<a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+<a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+<a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+<a href="#licences" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Licences</a>
+<a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+<a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+<div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+<a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+<a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+<a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+</nav>
+<main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+<header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><div><h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Licences</h1><div style="color:#57534E;max-width:70ch">Plan, expiry and last contact for every shop. A licence that ends locks the app until it is renewed; data stays on the shop PC.</div></div></header>
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end"><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="q2" style="font-size:13px;font-weight:600;color:#57534E">Search</label><input id="q2" placeholder="Shop or key" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="s2" style="font-size:13px;font-weight:600;color:#57534E">Status</label><select id="s2" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>Active</option><option>Ending in 14 days</option><option>Expired</option><option>Trial</option></select></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="p2" style="font-size:13px;font-weight:600;color:#57534E">Plan</label><select id="p2" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All plans</option><option>Starter</option><option>Growth</option><option>Trial</option></select></div></div>
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;overflow:hidden"><div style="overflow-x:auto"><table style="width:100%;min-width:900px;border-collapse:collapse;font-size:14px">
+<thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase"><th style="padding:12px 16px;background:#EEEBE6">Shop</th><th style="padding:12px 16px;background:#EEEBE6">Plan</th><th style="padding:12px 16px;background:#EEEBE6">Backup</th><th style="padding:12px 16px;background:#EEEBE6">Counters</th><th style="padding:12px 16px;background:#EEEBE6">Valid till</th><th style="padding:12px 16px;background:#EEEBE6">Status</th><th style="padding:12px 16px;background:#EEEBE6">Last check</th><th style="padding:12px 16px;background:#EEEBE6"></th></tr></thead>
+<tbody><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Raj Fashion</b><div style="color:#57534E">Ahmedabad</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Starter</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Cloud</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">1</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">30 Nov 2026</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEF3C7;color:#92400E">Ends in 5 days</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">2 hours ago</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Renew</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Style Hub</b><div style="color:#57534E">Vadodara</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Growth</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Cloud</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">2</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">14 Oct 2027</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Active</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">12 minutes ago</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Renew</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Nikk Store</b><div style="color:#57534E">Rajkot</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Trial</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Cloud</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">1</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">4 Dec 2026</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Trial · 9 days left</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Yesterday</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Convert to paid</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Kavya Boutique</b><div style="color:#57534E">Bhavnagar</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Starter</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Local-only</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">1</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">19 Nov 2026</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEE2E2;color:#B91C1C">Expired</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">6 days ago</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Renew</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Shree Textiles</b><div style="color:#57534E">Surat</div></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Starter</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Local-only</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">1</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">—</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#EEEBE6;color:#57534E">Not started</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Never</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">—</td></tr></tbody></table></div>
+<div style="padding:14px 16px;border-top:1px solid #E2DDD6;color:#57534E;font-size:14px">Sample data · showing 5 rows</div></div>
+<div style="background:#FBEADF;border-radius:12px;padding:14px 16px;color:#3F2315;font-size:14px">Renewal over the internet reaches the app by itself. For a shop with no internet, issue a renewal code here and read it out; the owner types it into the app.</div>
+</main></div></section>
+<section id="screen-pin-resets" class="screen" hidden aria-label="PIN resets">
+<div style="display:flex;flex-wrap:wrap;min-height:900px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+<nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>MARS Admin</div>
+<a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+<a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+<a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+<a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+<a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+<a href="#pin-resets" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">PIN resets</a>
+<a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+<div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+<a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+<a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+<a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+</nav>
+<main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+<header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><div><h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">PIN resets</h1><div style="color:#57534E;max-width:70ch">Owner forgot-PIN requests. The reset link goes to the owner's email only; no one at MARS can see or set a PIN.</div></div></header>
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end"><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="q3" style="font-size:13px;font-weight:600;color:#57534E">Search</label><input id="q3" placeholder="Shop" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="s3" style="font-size:13px;font-weight:600;color:#57534E">Status</label><select id="s3" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>Waiting for the owner</option><option>New PIN saved</option><option>Applied on the PC</option><option>Expired</option></select></div></div>
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;overflow:hidden"><div style="overflow-x:auto"><table style="width:100%;min-width:900px;border-collapse:collapse;font-size:14px">
+<thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase"><th style="padding:12px 16px;background:#EEEBE6">Shop</th><th style="padding:12px 16px;background:#EEEBE6">Requested</th><th style="padding:12px 16px;background:#EEEBE6">From PC</th><th style="padding:12px 16px;background:#EEEBE6">Email sent to</th><th style="padding:12px 16px;background:#EEEBE6">Status</th><th style="padding:12px 16px;background:#EEEBE6">Finished</th></tr></thead>
+<tbody><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Raj Fashion</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">24 Nov, 14:55</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">124D-9CE2-664F</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">ra•••••@rajfashion.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Applied on the PC</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">24 Nov, 15:02</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Style Hub</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">25 Nov, 09:10</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">8B21-0DF4-33A9</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">im••@stylehub.co.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEF3C7;color:#92400E">Waiting for the owner</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Link valid for 11 more minutes</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Style Hub</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">25 Nov, 08:41</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">8B21-0DF4-33A9</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">im••@stylehub.co.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#EEEBE6;color:#57534E">Expired</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Link not opened</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Nikk Store</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">20 Nov, 17:30</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="font-family:'JetBrains Mono',ui-monospace,monospace">55E0-A1C7-2B90</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">ni•••@gmail.com</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Applied on the PC</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">20 Nov, 17:36</td></tr></tbody></table></div>
+<div style="padding:14px 16px;border-top:1px solid #E2DDD6;color:#57534E;font-size:14px">Sample data · showing 4 rows</div></div>
+<div style="background:#FBEADF;border-radius:12px;padding:14px 16px;color:#3F2315;font-size:14px"><b>Watch for:</b> three or more requests for one shop in 24 hours (shown on the Dashboard). Requests are limited to 3 per hour, links work once, and every step is in the audit log.</div>
+</main></div></section>
+<section id="screen-messages" class="screen" hidden aria-label="Messages">
+<div style="display:flex;flex-wrap:wrap;min-height:900px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+<nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>MARS Admin</div>
+<a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+<a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+<a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+<a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+<a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+<a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+<a href="#messages" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Messages</a>
+<div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+<a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+<a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+<a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+</nav>
+<main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+<header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><div><h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Messages</h1><div style="color:#57534E;max-width:70ch">Everything the portal sent: activation keys, verification codes, reset emails and "PIN changed" notices.</div></div></header>
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end"><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="q4" style="font-size:13px;font-weight:600;color:#57534E">Search</label><input id="q4" placeholder="Shop or recipient" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="t4" style="font-size:13px;font-weight:600;color:#57534E">Type</label><select id="t4" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>Activation key</option><option>Verification code</option><option>PIN reset email</option><option>PIN changed</option></select></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="c4" style="font-size:13px;font-weight:600;color:#57534E">Channel</label><select id="c4" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>WhatsApp</option><option>Email</option><option>SMS</option></select></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="s4" style="font-size:13px;font-weight:600;color:#57534E">Status</label><select id="s4" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>Delivered</option><option>Sent</option><option>Failed</option></select></div></div>
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;overflow:hidden"><div style="overflow-x:auto"><table style="width:100%;min-width:900px;border-collapse:collapse;font-size:14px">
+<thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase"><th style="padding:12px 16px;background:#EEEBE6">Time</th><th style="padding:12px 16px;background:#EEEBE6">Shop</th><th style="padding:12px 16px;background:#EEEBE6">Type</th><th style="padding:12px 16px;background:#EEEBE6">Channel</th><th style="padding:12px 16px;background:#EEEBE6">To</th><th style="padding:12px 16px;background:#EEEBE6">Status</th><th style="padding:12px 16px;background:#EEEBE6"></th></tr></thead>
+<tbody><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">25 Nov, 09:10</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Style Hub</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">PIN reset email</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Email</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">im••@stylehub.co.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">23 Nov, 16:02</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Nikk Store</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Activation key</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">WhatsApp</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">93••••8593</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEE2E2;color:#B91C1C">Failed: not on WhatsApp</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Retry</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">23 Nov, 15:58</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Nikk Store</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Verification code</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">SMS</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">93••••8593</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">21 Nov, 12:20</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Shree Textiles</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Activation key</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">WhatsApp</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">97••••5518</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Resend</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">24 Nov, 15:02</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Raj Fashion</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">PIN changed</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Email</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">ra•••••@rajfashion.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">24 Nov, 14:55</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Raj Fashion</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">PIN reset email</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Email</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">ra•••••@rajfashion.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Delivered</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"></td></tr></tbody></table></div>
+<div style="padding:14px 16px;border-top:1px solid #E2DDD6;color:#57534E;font-size:14px">Sample data · showing 6 rows</div></div>
+<div style="background:#FBEADF;border-radius:12px;padding:14px 16px;color:#3F2315;font-size:14px">Recipients are always masked. Failed messages can be retried; a failed WhatsApp key shows on the Dashboard until it is fixed.</div>
+</main></div></section>
+<section id="screen-plans" class="screen" hidden aria-label="Plans"><div style="display:flex;flex-wrap:wrap;min-height:900px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+<nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>MARS Admin</div>
+<a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+<a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+<a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+<a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+<a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+<a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+<a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+<div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+<a href="#plans" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Plans</a>
+<a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+<a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+</nav>
+<main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+<header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><div><h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Plans</h1><div style="color:#57534E;max-width:70ch">What a shop gets for each plan. The onboarding form and renewals pick from this list.</div></div><button type="button" style="min-height:44px;padding:0 18px;border-radius:10px;border:0;background:#B4441F;color:#FFFFFF;font-weight:700;cursor:pointer">+ New plan</button></header>
+<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:18px">
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:20px">Trial</h2><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#EEEBE6;color:#57534E">4 active</span></div><div style="font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:800">Free</div><div style="color:#57534E">14 days · 1 counter</div><ul style="margin:0;padding-left:20px;color:#57534E;display:flex;flex-direction:column;gap:4px"><li>Mobile one-time code to start</li><li>All features</li><li>Converts to a paid plan</li></ul><div style="margin-top:auto"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Edit plan</button></div></div>
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:20px">Starter</h2><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#EEEBE6;color:#57534E">16 shops</span></div><div style="font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:800">₹3,999 / year</div><div style="color:#57534E">1 counter</div><ul style="margin:0;padding-left:20px;color:#57534E;display:flex;flex-direction:column;gap:4px"><li>Billing, stock, stickers, staff, reports</li><li>Cloud backup or Local-only</li><li>Installation and training included</li></ul><div style="margin-top:auto"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Edit plan</button></div></div>
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:20px">Growth</h2><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#EEEBE6;color:#57534E">4 shops</span></div><div style="font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:800">[PRICE] / year</div><div style="color:#57534E">2+ counters</div><ul style="margin:0;padding-left:20px;color:#57534E;display:flex;flex-direction:column;gap:4px"><li>Everything in Starter</li><li>More counters on the shop Wi-Fi</li><li>Second outlet (needs cloud plan)</li></ul><div style="margin-top:auto"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Edit plan</button></div></div>
+</div>
+<div style="background:#FBEADF;border-radius:12px;padding:14px 16px;color:#3F2315;font-size:14px">Prices marked [PRICE] are still to be decided. Changing a plan affects new shops and renewals, not licences already issued.</div>
+</main></div></section>
+<section id="screen-admin-users" class="screen" hidden aria-label="Admin users">
+<div style="display:flex;flex-wrap:wrap;min-height:900px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+<nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>MARS Admin</div>
+<a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+<a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+<a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+<a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+<a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+<a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+<a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+<div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+<a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+<a href="#admin-users" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Admin users</a>
+<a href="#audit-log" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Audit log</a>
+</nav>
+<main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+<header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><div><h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Admin users</h1><div style="color:#57534E;max-width:70ch">MARS staff who can sign in to this portal. Every sign-in needs a password and a code sent to the mobile.</div></div><button type="button" style="min-height:44px;padding:0 18px;border-radius:10px;border:0;background:#B4441F;color:#FFFFFF;font-weight:700;cursor:pointer">+ Invite admin</button></header>
+
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;overflow:hidden"><div style="overflow-x:auto"><table style="width:100%;min-width:900px;border-collapse:collapse;font-size:14px">
+<thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase"><th style="padding:12px 16px;background:#EEEBE6">Name</th><th style="padding:12px 16px;background:#EEEBE6">Email</th><th style="padding:12px 16px;background:#EEEBE6">Role</th><th style="padding:12px 16px;background:#EEEBE6">Last sign-in</th><th style="padding:12px 16px;background:#EEEBE6">Status</th><th style="padding:12px 16px;background:#EEEBE6"></th></tr></thead>
+<tbody><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Arif</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">arif@marstechnolabs.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Admin</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Today, 09:02</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Active</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Edit</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Pinkal</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">pinkal@marstechnolabs.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Admin</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Yesterday</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Active</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Edit</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Akshay</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">akshay@marstechnolabs.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Admin</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">23 Nov</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Active</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Edit</button></td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Support desk</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">support@marstechnolabs.in</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#FEF3C7;color:#92400E">Support</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">22 Nov</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:#DCFCE7;color:#15803D">Active</span></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #8A837C;background:#FFFFFF;color:#1C1917;font-weight:600;cursor:pointer;white-space:nowrap">Edit</button> <button type="button" style="min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #B91C1C;background:#FFFFFF;color:#B91C1C;font-weight:600;cursor:pointer;white-space:nowrap">Disable</button></td></tr></tbody></table></div>
+<div style="padding:14px 16px;border-top:1px solid #E2DDD6;color:#57534E;font-size:14px">Sample data · showing 4 rows</div></div>
+<div style="background:#FBEADF;border-radius:12px;padding:14px 16px;color:#3F2315;font-size:14px"><b>Roles.</b> Admin: everything, including plans and users. Support: view shops, resend keys, release a PC, issue renewal codes. No one can read an owner PIN or password; they are never stored in a readable form.</div>
+</main></div></section>
+<section id="screen-audit-log" class="screen" hidden aria-label="Audit log">
+<div style="display:flex;flex-wrap:wrap;min-height:900px;background:#F5F3F0;color:#1C1917;font-family:'Figtree','Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5">
+<nav aria-label="Main" style="flex:0 0 248px;background:#1C1917;color:#E7E5E4;padding:22px 14px;display:flex;flex-direction:column;gap:4px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:10px;padding:0 10px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="#E0703F"/><ellipse cx="14" cy="14" rx="13" ry="4" fill="none" stroke="#F5F5F4" stroke-width="1.5" transform="rotate(-20 14 14)"/></svg>MARS Admin</div>
+<a href="#dashboard" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Dashboard</a>
+<a href="#new-shop" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Onboard a shop</a>
+<a href="#shops" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Shops</a>
+<a href="#activation-keys" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Activation keys</a>
+<a href="#licences" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Licences</a>
+<a href="#pin-resets" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">PIN resets</a>
+<a href="#messages" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Messages</a>
+<div style="height:1px;background:#3A3531;margin:12px 4px"></div>
+<a href="#plans" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Plans</a>
+<a href="#admin-users" style="display:block;padding:10px 12px;border-radius:8px;color:#E7E5E4;text-decoration:none">Admin users</a>
+<a href="#audit-log" aria-current="page" style="display:block;padding:10px 12px;border-radius:8px;background:#B4441F;color:#FFFFFF;text-decoration:none;font-weight:600">Audit log</a>
+</nav>
+<main style="flex:999 1 560px;min-width:0;padding:28px 32px 40px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+<header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><div><h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.01em">Audit log</h1><div style="color:#57534E;max-width:70ch">Who did what, and when. Entries cannot be edited or deleted.</div></div></header>
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end"><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="q7" style="font-size:13px;font-weight:600;color:#57534E">Search</label><input id="q7" placeholder="Shop, person or action" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="a7" style="font-size:13px;font-weight:600;color:#57534E">Action</label><select id="a7" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>All</option><option>Shop created</option><option>Key sent</option><option>App activated</option><option>PC released</option><option>Licence renewed</option><option>PIN reset</option><option>Sign-in</option></select></div><div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="d7" style="font-size:13px;font-weight:600;color:#57534E">Date</label><select id="d7" style="min-height:44px;padding:0 12px;border:1px solid #8A837C;border-radius:8px;background:#FFFFFF"><option>Last 7 days</option><option>Today</option><option>Last 30 days</option></select></div></div>
+<div style="background:#FFFFFF;border:1px solid #E2DDD6;border-radius:14px;overflow:hidden"><div style="overflow-x:auto"><table style="width:100%;min-width:900px;border-collapse:collapse;font-size:14px">
+<thead><tr style="text-align:left;color:#57534E;font-size:12px;letter-spacing:.06em;text-transform:uppercase"><th style="padding:12px 16px;background:#EEEBE6">Time</th><th style="padding:12px 16px;background:#EEEBE6">Who</th><th style="padding:12px 16px;background:#EEEBE6">Action</th><th style="padding:12px 16px;background:#EEEBE6">Shop</th><th style="padding:12px 16px;background:#EEEBE6">Details</th></tr></thead>
+<tbody><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">25 Nov, 09:10</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Owner (web page)</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">PIN reset requested</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Style Hub</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">From PC 8B21-0DF4-33A9. Email sent.</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">24 Nov, 15:02</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">System</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">PIN reset applied</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Raj Fashion</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">App on PC 124D-9CE2-664F saved the new PIN.</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">24 Nov, 14:58</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Owner (web page)</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">New PIN saved</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Raj Fashion</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Link used once. Confirmation email sent.</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">23 Nov, 16:02</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Arif</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Key resent</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Nikk Store</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">WhatsApp failed: number not on WhatsApp.</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">21 Nov, 12:20</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Arif</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Shop created</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Shree Textiles</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Mobile and email verified. Key sent.</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">19 Nov, 18:44</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Support desk</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">Licence expired</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Kavya Boutique</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">App is locked until renewed.</td></tr><tr><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">12 Nov, 11:20</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">System</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">App activated</td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top"><b>Raj Fashion</b></td><td style="padding:14px 16px;border-top:1px solid #E2DDD6;vertical-align:top">PC 124D-9CE2-664F.</td></tr></tbody></table></div>
+<div style="padding:14px 16px;border-top:1px solid #E2DDD6;color:#57534E;font-size:14px">Sample data · showing 7 rows</div></div>
+
+</main></div></section>
+<script>
+(function () {
+  var S = { mobile: 'idle', email: 'idle', created: false, showKey: false, view: 'form', step: 1 };
+  var IDS = ["login","dashboard","new-shop","shops","shop-detail","reset-pin","activation-keys","licences","pin-resets","messages","plans","admin-users","audit-log"];
+  var TABS = ["login","dashboard","new-shop","shops","shop-detail","reset-pin"];
+  function flags() {
+    return {
+      created: S.created,
+      'mobile.idle': S.mobile === 'idle', 'mobile.sent': S.mobile === 'sent', 'mobile.done': S.mobile === 'done',
+      'email.idle': S.email === 'idle', 'email.sent': S.email === 'sent', 'email.done': S.email === 'done',
+      'view.form': S.view === 'form', 'view.done': S.view === 'done', 'view.expired': S.view === 'expired',
+      'step.one': S.step === 1, 'step.two': S.step === 2
+    };
+  }
+  var ACTIONS = {
+    sendMobile: function () { S.mobile = 'sent'; }, verifyMobile: function () { S.mobile = 'done'; },
+    sendEmail: function () { S.email = 'sent'; }, verifyEmail: function () { S.email = 'done'; },
+    submit: function () { if (S.mobile === 'done' && S.email === 'done') S.created = true; },
+    again: function () { S.mobile = 'idle'; S.email = 'idle'; S.created = false; },
+    toggleKey: function () { S.showKey = !S.showKey; },
+    save: function () { S.view = 'done'; }, showExpired: function () { S.view = 'expired'; }, restart: function () { S.view = 'form'; },
+    next: function () { S.step = 2; }, back: function () { S.step = 1; }
+  };
+  function render() {
+    var f = flags();
+    document.querySelectorAll('[data-if]').forEach(function (el) { el.hidden = !f[el.getAttribute('data-if')]; });
+    document.querySelectorAll('[data-dot]').forEach(function (el) {
+      var ok = S[el.getAttribute('data-dot')] === 'done';
+      el.textContent = ok ? '✓' : '•'; el.style.background = ok ? '#DCFCE7' : '#FEF3C7'; el.style.color = ok ? '#14532D' : '#92400E';
+    });
+    var ready = S.mobile === 'done' && S.email === 'done';
+    document.querySelectorAll('[data-submit]').forEach(function (el) { el.disabled = !ready; el.style.background = ready ? '#B4441F' : '#A8A29E'; el.style.cursor = ready ? 'pointer' : 'not-allowed'; });
+    document.querySelectorAll('[data-hint]').forEach(function (el) { el.textContent = ready ? 'The GST number is optional, but it must be valid if you fill it in.' : 'Verify the mobile and the email first.'; });
+    document.querySelectorAll('[data-key]').forEach(function (el) { el.textContent = S.showKey ? 'MARS-7K2Q-9XFD-4LPA' : 'MARS-7K2Q-••••-••••'; });
+    document.querySelectorAll('[data-keybtn]').forEach(function (el) { el.textContent = S.showKey ? 'Hide key' : 'Show key'; });
+  }
+  function show() {
+    var id = (location.hash || '').replace('#', '');
+    if (IDS.indexOf(id) < 0) id = 'dashboard';
+    IDS.forEach(function (x) { document.getElementById('screen-' + x).hidden = x !== id; });
+    document.querySelectorAll('[data-tab]').forEach(function (a) { if (a.getAttribute('data-tab') === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', function (e) {
+    var plain = e.target.closest('a[href="#"]');
+    if (plain) { e.preventDefault(); return; }
+    var el = e.target.closest('[data-act]');
+    if (!el) return;
+    e.preventDefault();
+    var fn = ACTIONS[el.getAttribute('data-act')];
+    if (fn) { fn(); render(); }
+  });
+  window.addEventListener('hashchange', show);
+  render(); show();
+})();
+</script>
+</body>
+</html>
