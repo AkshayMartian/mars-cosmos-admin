@@ -49,7 +49,7 @@ Setup: `npm run licence:keygen -w server -- licence-private.pem` (put the printe
 
 | Who calls | Endpoint | Purpose |
 |---|---|---|
-| desktop app | `POST /v1/refresh` | weekly check: renewed licence, pending PIN hash |
+| desktop app | `POST /v1/refresh` | weekly check-in and "Check with MARS now": a fresh licence from MongoDB (renewals, plan changes) (built) |
 | desktop app | `POST /v1/trial/otp`, `POST /v1/trial/verify` | free trial |
 | desktop app | `POST /v1/pin-reset/request`, `GET /v1/pin-reset/status`, `POST /v1/pin-reset/applied` | owner forgot PIN |
 | owner web page | `GET /v1/pin-reset/validate`, `POST /v1/pin-reset/complete` | the page the emailed link opens (`/reset-pin?token=...`, address from `WEB_URL`) |
@@ -60,7 +60,7 @@ The licence is an Ed25519-signed token (`MARSL1.<payload>.<signature>`); the pri
 ## Build order (suggested)
 
 1. ~~Onboarding submit~~ (done).
-2. **`/v1/refresh`** (`/v1/activate` is done): replaces the desktop app's local dev licence server.
+2. ~~`/v1/refresh`~~ (done).
 3. **PIN reset:** request → email link → web page → hash hand-off to the app.
 4. **Portal pages:** Shops, Shop detail, Licences, Keys, Messages, Audit log, Admin users, Plans; staff sign-in.
 5. **Database sync / cloud backup** (see the sync notes).

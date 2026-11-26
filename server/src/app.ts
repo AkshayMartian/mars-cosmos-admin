@@ -17,6 +17,7 @@ import { teamRoutes } from './routes/team.js'
 import { auditRoutes } from './routes/audit.js'
 import { pinResetRoutes } from './routes/pinreset.js'
 import { plannedRoutes } from './routes/planned.js'
+import { refreshRoutes } from './routes/refresh.js'
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -45,6 +46,7 @@ export async function buildApp(config: Config, database: Database | null = null,
   await app.register(onboardingRoutes({ config, messenger, otpSecret: secret, ...(options.emailDomainOk ? { emailDomainOk: options.emailDomainOk } : {}) }))
   await app.register(activateRoutes(config, signer))
   await app.register(pinResetRoutes({ config, messenger, secret }))
+  await app.register(refreshRoutes(signer))
   await app.register(plannedRoutes)
   return app
 }
