@@ -7,6 +7,7 @@ import { z, ZodError } from 'zod'
 import type { Config } from '../config.js'
 import type { Messenger } from '../lib/messenger.js'
 import { emailDomainCanReceive } from '../lib/emailDomain.js'
+import { createInvoice } from '../lib/invoices.js'
 import { loadPlans } from '../lib/plans.js'
 import { requirePermission, sessionOf } from './admin.js'
 import { hashCode, hashPassword, newActivationKey, newCode, safeEqual } from '../lib/secrets.js'
@@ -209,7 +210,18 @@ export function onboardingRoutes(deps: OnboardingDeps) {
       }
 
       await otps.deleteMany({ channel: 'email', target: b.email })
-      await db.collection('audit_log').insertOne({ tenantId, action: 'shop_onboarded', at: now, by: sessionOf(otpSecret, req)?.name ?? 'Staff', details: { shop: b.shopName, plan: b.plan } })
+      const by = sessionOf(otpSecret, req)?.name ?? 'Staff'
+      await db.collection('audit_log').insertOne({ tenantId, action: 'shop_onboarded', at: now, by, details: { shop: b.shopName, plan: b.plan } })
+
+      // the first invoice: the plan's yearly price for the licence days (a failure here does not undo the shop; staff can raise it on Payments)
+      let invoice: string | null = null
+      try {
+        const plan = (await loadPlans(db)).find((x) => x.key === b.plan)
+        const amount = plan ? Math.round((plan.yearPrice * b.days) / 365) : 0
+        if (amount > 0) invoice = (await createInvoice(db, { tenantId, amount, description: `${plan!.name} plan · ${b.days} days`, by }, now)).no
+      } catch (e) {
+        req.log.error({ tenantId, err: e instanceof Error ? e.message : String(e) }, 'could not create the first invoice')
+      }
 
       // the key goes to the owner's verified email (WhatsApp later); if that fails the shop is still saved and staff can resend
       let whatsapp: { status: 'sent' | 'failed'; error?: string }
@@ -223,7 +235,7 @@ export function onboardingRoutes(deps: OnboardingDeps) {
         whatsapp = { status: 'failed', error }
         await db.collection('activation_keys').updateOne({ key }, { $set: { whatsapp: { status: 'failed', error } } })
       }
-      return reply.code(201).send({ tenantId, key, whatsapp })
+      return reply.code(201).send({ tenantId, key, whatsapp, invoice })
     })
   }
 }

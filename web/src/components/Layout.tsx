@@ -12,7 +12,7 @@ import { Toast } from './ui'
 // [path, label, permission needed, "later" badge]
 const MENU: Array<[string, string, string, boolean?] | 'hr'> = [
   ['/', 'Dashboard', 'dashboard'], ['/shops', 'Shops', 'shops'], ['/onboard', 'Onboard a shop', 'onboard'], ['/plans', 'Plans & add-ons', 'plans'], 'hr',
-  ['/payments', 'Payments', 'payments', true], 'hr', ['/team', 'Team', 'team'], ['/audit', 'Audit log', 'audit']
+  ['/payments', 'Payments', 'payments'], 'hr', ['/team', 'Team', 'team'], ['/audit', 'Audit log', 'audit']
 ]
 
 /** The menu for this member: items their role cannot use are left out, and so are dividers that would end up empty or doubled. */

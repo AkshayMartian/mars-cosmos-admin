@@ -106,6 +106,18 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
     indexes: [[{ key: 1 }, { unique: true }]]
   },
 
+  // invoices to shops (first one at onboarding, more from the Payments page); amounts in whole rupees
+  invoices: {
+    validator: schema(['id', 'no', 'tenantId', 'amount', 'status', 'issuedAt', 'dueAt'], {
+      id: str(), no: str({ pattern: '^MT/[0-9]{2}-[0-9]{2}/[0-9]{4,}$' }), tenantId: str(),
+      amount: { bsonType: ['int', 'long', 'double'], minimum: 0 }, description: str({ maxLength: 120 }),
+      status: { enum: ['due', 'paid', 'cancelled'] },
+      issuedAt: date, dueAt: date, paidAt: date, method: str(), reference: str({ maxLength: 80 }),
+      createdBy: str(), paidBy: str(), cancelledBy: str(), createdAt: date, updatedAt: date
+    }),
+    indexes: [[{ id: 1 }, { unique: true }], [{ no: 1 }, { unique: true }], [{ tenantId: 1, issuedAt: -1 }, {}], [{ status: 1, dueAt: 1 }, {}]]
+  },
+
   audit_log: {
     validator: schema(['action', 'at'], { tenantId: str(), action: str(), at: date, by: str(), details: { bsonType: 'object' } }),
     indexes: [[{ tenantId: 1, at: -1 }, {}]]

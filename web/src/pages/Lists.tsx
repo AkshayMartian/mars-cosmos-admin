@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { get, post, put } from '../api'
 import { Link } from 'react-router-dom'
 import { can, currentUser } from '../auth'
-import { Chip, Field, Modal, PasswordInput, SampleNote, toast } from '../components/ui'
-import { ADDONS, addAudit, addonName, ago, dOnly, dt, inr, PLANS, uid, update, useStore, type State } from '../store'
+import { Chip, Field, Modal, PasswordInput, SampleNote, Tabs, toast } from '../components/ui'
+import { ADDONS, addAudit, addonName, ago, dOnly, dt, inr, PLANS, uid, update, useStore, type State, type Tone } from '../store'
 
 interface PlanRow { key: string; name: string; yearPrice: number; counters: number; includes: string[] }
 
@@ -105,20 +105,119 @@ export function Plans() {
   )
 }
 
+type InvoiceStatus = 'Paid' | 'Due' | 'Overdue' | 'Cancelled'
+interface Invoice {
+  id: string; no: string; tenantId: string; shop: string; amount: number; description: string; status: InvoiceStatus
+  issuedAt: string; dueAt: string; paidAt: string | null; method: string | null; reference: string | null
+}
+interface PaymentsData { invoices: Invoice[]; totals: { outstanding: number; overdue: number; overdueCount: number; collectedThisMonth: number }; methods: string[] }
+
+const INVOICE_TONE: Record<InvoiceStatus, Tone> = { Paid: 'good', Due: 'warn', Overdue: 'bad', Cancelled: 'grey' }
+const INVOICE_FILTERS: Array<[string, string]> = [['all', 'All'], ['unpaid', 'Unpaid'], ['Overdue', 'Overdue'], ['Paid', 'Paid'], ['Cancelled', 'Cancelled']]
+const today = (): string => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` }
+
 export function Payments() {
-  const { invoices, shops } = useStore()
-  const by = currentUser()?.name ?? '—'
+  const [data, setData] = useState<PaymentsData | null>(null)
+  const [error, setError] = useState('')
+  const [filter, setFilter] = useState('all')
+  const [q, setQ] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [paying, setPaying] = useState<{ inv: Invoice; method: string; reference: string; paidOn: string } | null>(null)
+  const [cancelling, setCancelling] = useState<Invoice | null>(null)
+  const [raising, setRaising] = useState<{ tenantId: string; amount: string; description: string; dueDays: string } | null>(null)
+  const [shops, setShops] = useState<Array<{ tenantId: string; name: string }>>([])
+  useEffect(() => { get<PaymentsData>('/v1/admin/payments').then(setData, (e: Error) => setError(e.message)) }, [])
+
+  const run = async (fn: () => Promise<PaymentsData>, done: string, close: () => void) => {
+    setBusy(true)
+    try { setData(await fn()); toast(done); close() } catch (e) { toast(e instanceof Error ? e.message : 'Could not save.') } finally { setBusy(false) }
+  }
+  const openRaise = () => {
+    setRaising({ tenantId: '', amount: '', description: '', dueDays: '15' })
+    get<{ shops: Array<{ tenantId: string; name: string }> }>('/v1/admin/shops').then((r) => setShops([...r.shops].sort((a, b) => a.name.localeCompare(b.name))), () => setShops([]))
+  }
+
+  const needle = q.trim().toLowerCase()
+  const list = (data?.invoices ?? []).filter((i) =>
+    (filter === 'all' || (filter === 'unpaid' ? i.status === 'Due' || i.status === 'Overdue' : i.status === filter)) &&
+    (!needle || `${i.no} ${i.shop} ${i.description} ${i.reference ?? ''}`.toLowerCase().includes(needle)))
+
   return (
     <>
-      <div className="head"><div><h1>Payments</h1><div className="muted">Can come after the main screens.</div></div></div>
-      <div className="panel"><div className="tw"><table><thead><tr><th>Invoice</th><th>Shop</th><th className="r">Amount</th><th>Date</th><th>Status</th><th /></tr></thead><tbody>
-        {invoices.map((i) => (
-          <tr key={i.id}><td className="mono">{i.no}</td><td>{shops.find((s) => s.id === i.shop)?.name}</td><td className="r num">{inr(i.amount)}</td><td>{dOnly(i.date)}</td>
-            <td>{i.paid ? <Chip tone="good">Paid</Chip> : i.due < Date.now() ? <Chip tone="bad">Overdue</Chip> : <Chip tone="warn">Due</Chip>}</td>
-            <td>{!i.paid && <button type="button" className="btn sm" onClick={() => { update((s: State) => { s.invoices.find((x) => x.id === i.id)!.paid = true; addAudit(s, by, 'Invoice paid', i.shop, i.no) }); toast(i.no + ' marked paid') }}>Mark paid</button>}</td></tr>
-        ))}
-      </tbody></table></div></div>
-      <SampleNote />
+      <div className="head"><h1>Payments</h1><button type="button" className="btn p" onClick={openRaise}>+ New invoice</button></div>
+      <div className="kpis">
+        <div className="kpi"><b>{data ? inr(data.totals.outstanding) : '…'}</b><span>Outstanding (unpaid)</span></div>
+        <div className="kpi"><b style={{ color: 'var(--bad)' }}>{data ? inr(data.totals.overdue) : '…'}</b><span>Overdue{data && data.totals.overdueCount ? ` · ${data.totals.overdueCount} ${data.totals.overdueCount === 1 ? 'invoice' : 'invoices'}` : ''}</span></div>
+        <div className="kpi"><b style={{ color: 'var(--good)' }}>{data ? inr(data.totals.collectedThisMonth) : '…'}</b><span>Collected this month</span></div>
+      </div>
+      <div className="panel">
+        <div className="f"><label htmlFor="pq">Search invoice, shop or reference</label><input id="pq" type="text" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        <Tabs tabs={INVOICE_FILTERS} value={filter} onChange={setFilter} />
+        {error ? <div className="empty" role="alert">Could not load payments: {error}</div>
+          : !data ? <div className="empty">Loading…</div>
+          : list.length ? (
+            <div className="tw"><table><thead><tr><th>Invoice</th><th>Shop</th><th>For</th><th className="r">Amount</th><th>Raised</th><th>Due / paid</th><th>Status</th><th /></tr></thead><tbody>
+              {list.map((i) => (
+                <tr key={i.id}>
+                  <td className="mono">{i.no}</td><td>{i.shop}</td><td>{i.description}</td><td className="r num">{inr(i.amount)}</td>
+                  <td>{dOnly(new Date(i.issuedAt).getTime())}</td>
+                  <td>{i.status === 'Paid' && i.paidAt
+                    ? <>{dOnly(new Date(i.paidAt).getTime())}<div className="muted">{i.method}{i.reference ? ` · ${i.reference}` : ''}</div></>
+                    : i.status === 'Cancelled' ? <span className="muted">—</span> : dOnly(new Date(i.dueAt).getTime())}</td>
+                  <td><Chip tone={INVOICE_TONE[i.status]}>{i.status}</Chip></td>
+                  <td className="r">{(i.status === 'Due' || i.status === 'Overdue') && <>
+                    <button type="button" className="btn sm" onClick={() => setPaying({ inv: i, method: data.methods[1] ?? data.methods[0] ?? 'UPI', reference: '', paidOn: today() })}>Record payment</button>{' '}
+                    <button type="button" className="btn sm" onClick={() => setCancelling(i)}>Cancel</button>
+                  </>}</td>
+                </tr>
+              ))}
+            </tbody></table></div>
+          ) : <div className="empty">{data.invoices.length ? 'No invoices match.' : 'No invoices yet. One is raised for each shop you onboard.'}</div>}
+        <p className="muted" style={{ margin: 0 }}>Each onboarded shop gets an invoice for its plan. Raise more here for renewals or add-ons. Amounts are in whole rupees.</p>
+      </div>
+
+      {paying && (
+        <Modal onClose={() => setPaying(null)}>
+          <h2>Record payment · {paying.inv.no}</h2>
+          <p className="muted" style={{ margin: 0 }}>{paying.inv.shop} · {inr(paying.inv.amount)} · {paying.inv.description}</p>
+          <div className="row start">
+            <div className="f"><label htmlFor="pm">Paid by</label><select id="pm" value={paying.method} onChange={(e) => setPaying({ ...paying, method: e.target.value })}>{data?.methods.map((m) => <option key={m}>{m}</option>)}</select></div>
+            <Field label="Payment date" id="pd"><input id="pd" type="date" max={today()} value={paying.paidOn} onChange={(e) => setPaying({ ...paying, paidOn: e.target.value })} /></Field>
+          </div>
+          <Field label="Reference" id="pr" hint="Optional: UPI / UTR number, cheque number or receipt number."><input id="pr" type="text" value={paying.reference} onChange={(e) => setPaying({ ...paying, reference: e.target.value })} /></Field>
+          <div className="mfoot"><button type="button" className="btn" onClick={() => setPaying(null)}>Cancel</button>
+            <button type="button" className="btn p" disabled={busy} onClick={() => void run(() => post(`/v1/admin/payments/${paying.inv.id}/paid`, { method: paying.method, reference: paying.reference, paidOn: paying.paidOn }), `${paying.inv.no} marked paid.`, () => setPaying(null))}>Save payment</button></div>
+        </Modal>
+      )}
+
+      {cancelling && (
+        <Modal onClose={() => setCancelling(null)}>
+          <h2>Cancel {cancelling.no}?</h2>
+          <p style={{ margin: 0 }}>{cancelling.shop} · {inr(cancelling.amount)} · {cancelling.description}. Use this only for an invoice raised by mistake; it cannot be undone.</p>
+          <div className="mfoot"><button type="button" className="btn" onClick={() => setCancelling(null)}>Keep it</button>
+            <button type="button" className="btn p" disabled={busy} onClick={() => void run(() => post(`/v1/admin/payments/${cancelling.id}/cancel`, {}), `${cancelling.no} cancelled.`, () => setCancelling(null))}>Cancel invoice</button></div>
+        </Modal>
+      )}
+
+      {raising && (
+        <Modal onClose={() => setRaising(null)}>
+          <h2>New invoice</h2>
+          <div className="f"><label htmlFor="ns">Shop</label><select id="ns" value={raising.tenantId} onChange={(e) => setRaising({ ...raising, tenantId: e.target.value })}>
+            <option value="">Choose a shop…</option>{shops.map((s) => <option key={s.tenantId} value={s.tenantId}>{s.name}</option>)}</select></div>
+          <Field label="For" id="nd" hint="For example: Renewal 2027-28, WhatsApp bill add-on, extra counter."><input id="nd" type="text" value={raising.description} onChange={(e) => setRaising({ ...raising, description: e.target.value })} /></Field>
+          <div className="row start">
+            <Field label="Amount (₹)" id="na"><input id="na" type="text" inputMode="numeric" value={raising.amount} onChange={(e) => setRaising({ ...raising, amount: e.target.value.replace(/\D/g, '') })} /></Field>
+            <Field label="Due in (days)" id="ndd"><input id="ndd" type="text" inputMode="numeric" value={raising.dueDays} onChange={(e) => setRaising({ ...raising, dueDays: e.target.value.replace(/\D/g, '').slice(0, 3) })} /></Field>
+          </div>
+          <div className="mfoot"><button type="button" className="btn" onClick={() => setRaising(null)}>Cancel</button>
+            <button type="button" className="btn p" disabled={busy} onClick={() => {
+              if (!raising.tenantId) return toast('Choose a shop.')
+              if (!raising.description.trim()) return toast('Say what the invoice is for.')
+              if (!Number(raising.amount)) return toast('Type the amount.')
+              void run(() => post('/v1/admin/payments', { tenantId: raising.tenantId, amount: Number(raising.amount), description: raising.description.trim(), dueDays: Number(raising.dueDays || 0) }), 'Invoice raised.', () => setRaising(null))
+            }}>Raise invoice</button></div>
+        </Modal>
+      )}
     </>
   )
 }

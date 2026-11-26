@@ -124,6 +124,9 @@ describe('submit', () => {
     const out = r.json()
     expect(out.key).toMatch(/^MARS-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)
     expect(out.whatsapp).toEqual({ status: 'sent' })
+    // the first invoice: Smart plan, 365 days, at the default price
+    expect(out.invoice).toMatch(/^MT\/\d{2}-\d{2}\/0001$/)
+    expect(s.database.c('invoices').docs[0]).toMatchObject({ amount: 7999, status: 'due', description: 'Smart plan · 365 days' })
     expect(s.sent.keys).toEqual([{ mobile: 'rajesh@example.com', key: out.key }])
 
     const shop = s.database.c('shops').docs[0]!

@@ -62,9 +62,15 @@ export class FakeCollection {
   async updateMany(f: Doc, u: Doc) {
     const ds = this.docs.filter((x) => matches(x, f)); ds.forEach((d) => update(d, u)); return { matchedCount: ds.length }
   }
-  async findOneAndUpdate(f: Doc, u: Doc): Promise<Doc | null> {
-    const d = this.docs.find((x) => matches(x, f)); if (!d) return null
-    const before = { ...d }; update(d, u); return before
+  async findOneAndUpdate(f: Doc, u: Doc, o?: { upsert?: boolean; returnDocument?: 'before' | 'after' }): Promise<Doc | null> {
+    let d = this.docs.find((x) => matches(x, f))
+    if (!d) {
+      if (!o?.upsert) return null
+      const n: Doc = { _id: randomUUID(), ...f, ...(u['$setOnInsert'] ?? {}) }
+      update(n, u); this.docs.push(n)
+      return o.returnDocument === 'after' ? { ...n } : null
+    }
+    const before = { ...d }; update(d, u); return o?.returnDocument === 'after' ? { ...d } : before
   }
   async countDocuments(f: Doc) { return this.docs.filter((d) => matches(d, f)).length }
   async deleteOne(f: Doc) { const i = this.docs.findIndex((d) => matches(d, f)); if (i >= 0) this.docs.splice(i, 1); return { deletedCount: i >= 0 ? 1 : 0 } }

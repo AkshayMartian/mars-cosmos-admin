@@ -10,7 +10,10 @@ export const ACTION_LABEL: Record<string, string> = {
   plan_added: 'Plan added',
   plan_changed: 'Plan changed',
   team_member_added: 'Team member added',
-  team_member_changed: 'Team member changed'
+  team_member_changed: 'Team member changed',
+  invoice_created: 'Invoice raised',
+  invoice_paid: 'Payment received',
+  invoice_cancelled: 'Invoice cancelled'
 }
 
 export const actionLabel = (action: string): string => ACTION_LABEL[action] ?? action
