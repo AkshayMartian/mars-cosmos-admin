@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { get, post, put } from '../api'
 import { Link } from 'react-router-dom'
-import { currentUser } from '../auth'
+import { can, currentUser } from '../auth'
 import { Chip, Field, Modal, PasswordInput, SampleNote, toast } from '../components/ui'
 import { ADDONS, addAudit, addonName, ago, dOnly, dt, inr, PLANS, uid, update, useStore, type State } from '../store'
 
@@ -9,7 +9,7 @@ interface PlanRow { key: string; name: string; yearPrice: number; counters: numb
 
 export function Plans() {
   const { shops } = useStore()
-  const isAdmin = currentUser()?.role === 'Admin'
+  const isAdmin = can('plans.edit')
   const [plans, setPlans] = useState<PlanRow[] | null>(null)
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [error, setError] = useState('')
@@ -168,7 +168,7 @@ const BLANK_MEMBER = { name: '', email: '', role: 'Support' as Role, password: '
 
 export function Team() {
   const me = currentUser()
-  const isAdmin = me?.role === 'Admin'
+  const isAdmin = can('team')
   const [team, setTeam] = useState<Member[] | null>(null)
   const [error, setError] = useState('')
   const [adding, setAdding] = useState(false)
@@ -218,11 +218,11 @@ export function Team() {
           </tbody></table></div>
         )}
         <div className="tw"><table><thead><tr><th>Role</th><th>Can do</th></tr></thead><tbody>
-          <tr><td><b>Admin</b></td><td>Everything, including plans, prices, team and app releases</td></tr>
-          <tr><td><b>Support</b></td><td>See shops, devices, activation keys, release PC, notes, WhatsApp logs</td></tr>
-          <tr><td><b>Sales</b></td><td>Onboard shops, trials, renew, send activation keys</td></tr>
+          <tr><td><b>Admin</b></td><td>Everything: dashboard, shops, onboarding, plans and prices, WhatsApp, app releases, payments, team and audit log</td></tr>
+          <tr><td><b>Support</b></td><td>Dashboard, shops, see plans, WhatsApp</td></tr>
+          <tr><td><b>Sales</b></td><td>Dashboard, shops, onboard shops and send activation keys, see plans</td></tr>
         </tbody></table></div>
-        {!isAdmin && <p className="muted" style={{ margin: 0 }}>Only an Admin can add or change team members.</p>}
+        <p className="muted" style={{ margin: 0 }}>A role change applies on the member’s next page load. Menu items a role cannot use are hidden, and the server refuses them too.</p>
       </div>
       {adding && (
         <Modal onClose={() => setAdding(false)}>

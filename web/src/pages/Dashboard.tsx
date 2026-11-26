@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { get } from '../api'
-import { currentUser } from '../auth'
+import { can, currentUser } from '../auth'
 import { Chip } from '../components/ui'
 import { ago, dOnly, inr } from '../store'
 
@@ -29,7 +29,7 @@ export function Dashboard() {
     <>
       <div className="head">
         <div><h1>Good day, {user.name.split(' ')[0]}</h1><div className="muted">{data ? `${data.total} shops on MARS POS` : 'Loading…'}</div></div>
-        <Link className="btn p" to="/onboard">+ Onboard a shop</Link>
+        {can('onboard') && <Link className="btn p" to="/onboard">+ Onboard a shop</Link>}
       </div>
       {error && <div className="empty" role="alert">Could not load the dashboard: {error}</div>}
       <div className="kpis">

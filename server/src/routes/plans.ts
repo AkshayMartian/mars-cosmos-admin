@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { loadPlans } from '../lib/plans.js'
-import { requireStaff, sessionOf } from './admin.js'
+import { requirePermission, sessionOf } from './admin.js'
 
 const Change = z.object({
   name: z.string().trim().min(2).max(40).optional(),
@@ -22,17 +22,17 @@ const slug = (name: string): string => name.toLowerCase().replace(/[^a-z0-9]+/g,
 /** GET /v1/admin/plans (any staff), POST /v1/admin/plans and PUT /v1/admin/plans/:key (Admin only): plans and their yearly prices, kept in MongoDB. */
 export function planRoutes(secret: string) {
   return async function routes(app: FastifyInstance): Promise<void> {
-    const staff = { preHandler: requireStaff(secret) }
+    const view = { preHandler: requirePermission(secret, 'plans') }
+    const edit = { preHandler: requirePermission(secret, 'plans.edit') }
 
-    app.get('/v1/admin/plans', staff, async (_req, reply) => {
+    app.get('/v1/admin/plans', view, async (_req, reply) => {
       if (!app.database) return reply.code(503).send({ error: 'The database is not connected.' })
       return { plans: await loadPlans(app.database.db) }
     })
 
-    app.post('/v1/admin/plans', staff, async (req, reply) => {
+    app.post('/v1/admin/plans', edit, async (req, reply) => {
       if (!app.database) return reply.code(503).send({ error: 'The database is not connected.' })
       const who = sessionOf(secret, req)!
-      if (who.role !== 'Admin') return reply.code(403).send({ error: 'Only an Admin can add plans.' })
       const p = Add.safeParse(req.body)
       if (!p.success) return reply.code(400).send({ error: p.error.issues[0]?.message ?? 'Check the values.' })
       const db = app.database.db
@@ -47,10 +47,9 @@ export function planRoutes(secret: string) {
       return reply.code(201).send({ plans: await loadPlans(db), added: key })
     })
 
-    app.put<{ Params: { key: string } }>('/v1/admin/plans/:key', staff, async (req, reply) => {
+    app.put<{ Params: { key: string } }>('/v1/admin/plans/:key', edit, async (req, reply) => {
       if (!app.database) return reply.code(503).send({ error: 'The database is not connected.' })
       const who = sessionOf(secret, req)!
-      if (who.role !== 'Admin') return reply.code(403).send({ error: 'Only an Admin can change plans.' })
       const p = Change.safeParse(req.body)
       if (!p.success) return reply.code(400).send({ error: p.error.issues[0]?.message ?? 'Check the values.' })
       const db = app.database.db

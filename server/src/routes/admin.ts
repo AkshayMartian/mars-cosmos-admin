@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
+import { can, ROLE_PERMISSIONS, type Permission, type Role } from '../lib/roles.js'
 import { hashPassword, verifyPassword } from '../lib/secrets.js'
 
 const COOKIE = 'mars_admin'
@@ -34,14 +35,29 @@ const cookieOf = (req: FastifyRequest): string | undefined => /(?:^|;\s*)mars_ad
 /** The signed-in staff member, or null. */
 export const sessionOf = (secret: string, req: FastifyRequest): Session | null => readSessionToken(secret, cookieOf(req))
 
-/** Use as a route `preHandler`: answers 401 unless a staff member is signed in. */
-export const requireStaff = (secret: string) => async (req: FastifyRequest, reply: FastifyReply) => {
+/**
+ * The signed-in member as stored now: name and role come from the database, so a change on the Team page applies at once
+ * (the session cookie only proves who they are). Null when not signed in or switched off.
+ */
+async function currentStaff(secret: string, req: FastifyRequest): Promise<{ session: Session; off: boolean } | null> {
   const s = sessionOf(secret, req)
-  if (!s) return reply.code(401).send({ error: 'Sign in first.' })
-  // a member switched off on the Team page loses access at once, not when their 8-hour session runs out
+  if (!s) return null
   const u = await req.server.database?.db.collection('admin_users').findOne({ email: s.email })
-  if (u && !u['active']) return reply.code(401).send({ error: 'Your access has been switched off. Ask an Admin.' })
+  if (!u) return { session: s, off: false }
+  return { session: { email: s.email, name: u['name'], role: u['role'] }, off: !u['active'] }
 }
+
+/** Use as a route `preHandler`: 401 unless a staff member is signed in (and switched on); 403 unless their role has `permission`. */
+export const requirePermission = (secret: string, permission: Permission | null) => async (req: FastifyRequest, reply: FastifyReply) => {
+  const who = await currentStaff(secret, req)
+  if (!who) return reply.code(401).send({ error: 'Sign in first.' })
+  // a member switched off on the Team page loses access at once, not when their 8-hour session runs out
+  if (who.off) return reply.code(401).send({ error: 'Your access has been switched off. Ask an Admin.' })
+  if (permission && !can(who.session.role, permission)) return reply.code(403).send({ error: `Your role (${who.session.role}) cannot do this. Ask an Admin.` })
+}
+
+/** Any signed-in staff member, whatever the role. */
+export const requireStaff = (secret: string) => requirePermission(secret, null)
 
 const Body = z.object({ email: z.string().trim().toLowerCase().max(120), password: z.string().min(1).max(200) })
 const BAD = 'The email or password is not right.'
@@ -70,11 +86,16 @@ export function adminRoutes(secret: string, production: boolean) {
       await users.updateOne({ _id: u._id }, { $set: { failedLogins: 0, lastLoginAt: new Date() }, $unset: { lockedUntil: '' } })
       const s: Session = { email: u['email'], name: u['name'], role: u['role'] }
       reply.header('set-cookie', cookie(makeSessionToken(secret, s), SESSION_HOURS * 3600))
-      return s
+      return { ...s, can: ROLE_PERMISSIONS[s.role] ?? [] }
     })
 
     // GET /v1/admin/me: who is signed in (the web app asks this on every page load)
-    app.get('/v1/admin/me', async (req, reply) => sessionOf(secret, req) ?? reply.code(401).send({ error: 'Sign in first.' }))
+    // with the role's permissions, so the web app shows only what this member may use
+    app.get('/v1/admin/me', async (req, reply) => {
+      const who = await currentStaff(secret, req)
+      if (!who || who.off) return reply.code(401).send({ error: who?.off ? 'Your access has been switched off. Ask an Admin.' : 'Sign in first.' })
+      return { ...who.session, can: ROLE_PERMISSIONS[who.session.role as Role] ?? [] }
+    })
 
     // POST /v1/admin/logout
     app.post('/v1/admin/logout', async (_req, reply) => {

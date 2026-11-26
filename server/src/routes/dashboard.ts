@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { auditRow } from '../lib/audit.js'
 import { loadPlans } from '../lib/plans.js'
-import { requireStaff } from './admin.js'
+import { requirePermission } from './admin.js'
 
 const DAY = 86_400_000
 const OFFLINE_DAYS = 7
@@ -61,13 +61,13 @@ async function shopRows(db: import('mongodb').Db, now: number) {
 export function dashboardRoutes(secret: string) {
   return async function routes(app: FastifyInstance): Promise<void> {
     // GET /v1/admin/shops: every shop, newest first (the web page filters and searches them)
-    app.get('/v1/admin/shops', { preHandler: requireStaff(secret) }, async (_req, reply) => {
+    app.get('/v1/admin/shops', { preHandler: requirePermission(secret, 'shops') }, async (_req, reply) => {
       if (!app.database) return reply.code(503).send({ error: 'The database is not connected.' })
       const rows = await shopRows(app.database.db, Date.now())
       return { shops: rows.sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '')) }
     })
 
-    app.get('/v1/admin/dashboard', { preHandler: requireStaff(secret) }, async (_req, reply) => {
+    app.get('/v1/admin/dashboard', { preHandler: requirePermission(secret, 'dashboard') }, async (_req, reply) => {
       if (!app.database) return reply.code(503).send({ error: 'The database is not connected.' })
       const db = app.database.db
       const [rows, audit] = await Promise.all([shopRows(db, Date.now()), db.collection('audit_log').find({}).sort({ at: -1 }).limit(8).toArray()])

@@ -24,7 +24,7 @@ describe('team', () => {
   it('lists staff from the database without password hashes', async () => {
     const { call } = await setup()
     expect((await call('GET', '/v1/admin/team', '')).statusCode).toBe(401)
-    const r = await call('GET', '/v1/admin/team', SUPPORT)
+    const r = await call('GET', '/v1/admin/team', ADMIN)
     expect(r.statusCode).toBe(200)
     expect(r.json().team.map((u: any) => [u.name, u.role, u.active])).toEqual([['Boss', 'Admin', true], ['Helper', 'Support', true]])
     expect(r.body).not.toContain('passwordHash')
@@ -66,9 +66,9 @@ describe('team', () => {
 describe('switched-off staff', () => {
   it('lose access at once, even with a session that has not run out', async () => {
     const { call } = await setup()
-    expect((await call('GET', '/v1/admin/team', SUPPORT)).statusCode).toBe(200)
+    expect((await call('GET', '/v1/admin/shops', SUPPORT)).statusCode).toBe(200)
     await call('PUT', '/v1/admin/team/help%40example.com', ADMIN, { active: false })
-    const r = await call('GET', '/v1/admin/team', SUPPORT)
+    const r = await call('GET', '/v1/admin/shops', SUPPORT)
     expect(r.statusCode).toBe(401)
     expect(r.json().error).toContain('switched off')
   })
@@ -84,20 +84,57 @@ describe('audit log', () => {
     await log.insertOne({ action: 'team_member_added', by: 'Boss', at: new Date(t0 + 1000), details: { name: 'Nikita', role: 'Sales' } })
 
     expect((await call('GET', '/v1/admin/audit', '')).statusCode).toBe(401)
-    const first = (await call('GET', '/v1/admin/audit', SUPPORT)).json()
+    const first = (await call('GET', '/v1/admin/audit', ADMIN)).json()
     expect(first.entries).toHaveLength(50)
     expect(first.more).toBe(true)
     expect(first.entries[0]).toMatchObject({ action: 'Team member added', by: 'Boss', details: 'Nikita · Sales', shop: null })
     expect(first.entries[1]).toMatchObject({ action: 'PIN reset email sent', by: 'Shop', shop: 'Raj Fashion', details: '' })
-    const next = (await call('GET', '/v1/admin/audit?before=' + encodeURIComponent(first.entries[49].at), SUPPORT)).json()
+    const next = (await call('GET', '/v1/admin/audit?before=' + encodeURIComponent(first.entries[49].at), ADMIN)).json()
     expect(next.entries).toHaveLength(11)
     expect(next.more).toBe(false)
 
-    const s = async (q: string) => (await call('GET', '/v1/admin/audit?q=' + encodeURIComponent(q), SUPPORT)).json().entries.length
+    const s = async (q: string) => (await call('GET', '/v1/admin/audit?q=' + encodeURIComponent(q), ADMIN)).json().entries.length
     expect(await s('nikita')).toBe(1) // details.name
     expect(await s('boss')).toBe(1) // who
     expect(await s('team member')).toBe(1) // action label
     expect(await s('raj')).toBe(50) // shop name (first page)
     expect(await s('.*')).toBe(0) // typed literally, not as a pattern
+  })
+})
+
+describe('roles', () => {
+  const SALES = as('sell@example.com', 'Seller', 'Sales')
+  it('let each role use only its own areas', async () => {
+    const { call, users } = await setup()
+    await users.insertOne({ email: 'sell@example.com', name: 'Seller', role: 'Sales', active: true, passwordHash: 'x', createdAt: new Date() })
+    const code = async (method: string, url: string, who: string, body?: unknown) => (await call(method, url, who, body)).statusCode
+    for (const who of [ADMIN, SUPPORT, SALES]) {
+      expect(await code('GET', '/v1/admin/dashboard', who)).toBe(200)
+      expect(await code('GET', '/v1/admin/shops', who)).toBe(200)
+      expect(await code('GET', '/v1/admin/plans', who)).toBe(200)
+    }
+    // team and audit log: Admin only
+    for (const url of ['/v1/admin/team', '/v1/admin/audit']) {
+      expect(await code('GET', url, ADMIN)).toBe(200)
+      expect(await code('GET', url, SUPPORT)).toBe(403)
+      expect(await code('GET', url, SALES)).toBe(403)
+    }
+    // prices: Admin only
+    expect(await code('PUT', '/v1/admin/plans/pro', SALES, { yearPrice: 1 })).toBe(403)
+    // onboarding: Admin and Sales, not Support
+    const otp = { channel: 'email', target: 'owner@example.com' }
+    expect(await code('POST', '/v1/onboarding/otp', SUPPORT, otp)).toBe(403)
+    expect(await code('POST', '/v1/onboarding/otp', SALES, otp)).not.toBe(403)
+  })
+
+  it('use the role stored now, not the one in the session, and tell the web app what it may show', async () => {
+    const { call } = await setup()
+    // Helper's session says Support; an Admin makes them Sales
+    await call('PUT', '/v1/admin/team/help%40example.com', ADMIN, { role: 'Sales' })
+    const me = (await call('GET', '/v1/admin/me', SUPPORT)).json()
+    expect(me).toMatchObject({ role: 'Sales', name: 'Helper' })
+    expect(me.can).toContain('onboard')
+    expect(me.can).not.toContain('whatsapp')
+    expect((await call('POST', '/v1/onboarding/otp', SUPPORT, { channel: 'email', target: 'o@example.com' })).statusCode).not.toBe(403)
   })
 })

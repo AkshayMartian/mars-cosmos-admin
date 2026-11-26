@@ -2,12 +2,24 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { ApiError, get, post } from '../api'
 import { signIn, signOut, type Session } from '../auth'
+
+/** Shown instead of a page the signed-in role may not use. */
+export function NoAccess() {
+  return <div className="empty" role="alert">Your role cannot open this page. Ask an Admin if you need it.</div>
+}
 import { Toast } from './ui'
 
-const MENU: Array<[string, string, boolean?] | 'hr'> = [
-  ['/', 'Dashboard'], ['/shops', 'Shops'], ['/onboard', 'Onboard a shop'], ['/plans', 'Plans & add-ons'], ['/whatsapp', 'WhatsApp'], 'hr',
-  ['/releases', 'App releases'], ['/payments', 'Payments', true], 'hr', ['/team', 'Team'], ['/audit', 'Audit log']
+// [path, label, permission needed, "later" badge]
+const MENU: Array<[string, string, string, boolean?] | 'hr'> = [
+  ['/', 'Dashboard', 'dashboard'], ['/shops', 'Shops', 'shops'], ['/onboard', 'Onboard a shop', 'onboard'], ['/plans', 'Plans & add-ons', 'plans'], ['/whatsapp', 'WhatsApp', 'whatsapp'], 'hr',
+  ['/releases', 'App releases', 'releases'], ['/payments', 'Payments', 'payments', true], 'hr', ['/team', 'Team', 'team'], ['/audit', 'Audit log', 'audit']
 ]
+
+/** The menu for this member: items their role cannot use are left out, and so are dividers that would end up empty or doubled. */
+function menuFor(allowed: string[]): typeof MENU {
+  const items = MENU.filter((m) => m === 'hr' || allowed.includes(m[2]))
+  return items.filter((m, i) => m !== 'hr' || (i > 0 && i < items.length - 1 && items[i - 1] !== 'hr'))
+}
 
 /** The signed-in shell. Without a (sample) sign-in the visitor is sent to the sign-in page. */
 export function Layout() {
@@ -29,7 +41,7 @@ export function Layout() {
       </header>
       <div className="body">
         <nav className="menu" aria-label="Main menu">
-          {MENU.map((m, i) => m === 'hr' ? <hr key={i} /> : <NavLink key={m[0]} to={m[0]} end={m[0] === '/'} className={({ isActive }) => (isActive ? 'active' : '')}><span>{m[1]}</span>{m[2] && <span className="later">later</span>}</NavLink>)}
+          {menuFor(user.can ?? []).map((m, i) => m === 'hr' ? <hr key={i} /> : <NavLink key={m[0]} to={m[0]} end={m[0] === '/'} className={({ isActive }) => (isActive ? 'active' : '')}><span>{m[1]}</span>{m[3] && <span className="later">later</span>}</NavLink>)}
         </nav>
         <main className="work"><Outlet /></main>
       </div>

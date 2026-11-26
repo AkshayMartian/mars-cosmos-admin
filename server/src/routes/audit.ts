@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { actionsMatching, auditRow } from '../lib/audit.js'
-import { requireStaff } from './admin.js'
+import { requirePermission } from './admin.js'
 
 const Query = z.object({
   q: z.string().trim().max(80).optional().default(''),
@@ -15,7 +15,7 @@ const escape = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 /** GET /v1/admin/audit: the audit log, newest first, 50 at a time; `q` searches who, action and shop. */
 export function auditRoutes(secret: string) {
   return async function routes(app: FastifyInstance): Promise<void> {
-    app.get('/v1/admin/audit', { preHandler: requireStaff(secret) }, async (req, reply) => {
+    app.get('/v1/admin/audit', { preHandler: requirePermission(secret, 'audit') }, async (req, reply) => {
       if (!app.database) return reply.code(503).send({ error: 'The database is not connected.' })
       const p = Query.safeParse(req.query)
       if (!p.success) return reply.code(400).send({ error: 'Check the search.' })

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { get } from '../api'
+import { can } from '../auth'
 import { Chip, Tabs } from '../components/ui'
 import { ago, dOnly, type Tone } from '../store'
 
@@ -39,7 +40,7 @@ export function Shops() {
   const list = (shops ?? []).filter((s) => keep(s, filter) && (!needle || `${s.name} ${s.owner} ${s.mobile} ${s.city}`.toLowerCase().includes(needle)))
   return (
     <>
-      <div className="head"><h1>Shops</h1><Link className="btn p" to="/onboard">+ Onboard a shop</Link></div>
+      <div className="head"><h1>Shops</h1>{can('onboard') && <Link className="btn p" to="/onboard">+ Onboard a shop</Link>}</div>
       <div className="panel">
         <div className="f"><label htmlFor="sq">Search shop, owner, mobile or city</label><input id="sq" type="text" value={q} onChange={(e) => setQ(e.target.value)} /></div>
         <Tabs tabs={FILTERS} value={filter} onChange={setFilter} />

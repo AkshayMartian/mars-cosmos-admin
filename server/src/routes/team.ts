@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { hashPassword } from '../lib/secrets.js'
-import { requireStaff, sessionOf } from './admin.js'
+import { requirePermission, sessionOf } from './admin.js'
 
 const ROLES = ['Admin', 'Support', 'Sales'] as const
 const email = z.string().trim().toLowerCase().max(120).regex(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, 'Type a valid email address.')
@@ -27,10 +27,10 @@ const view = (u: Record<string, any>): Member => ({
   createdAt: u['createdAt'] ? (u['createdAt'] as Date).toISOString() : null
 })
 
-/** GET /v1/admin/team (any staff); POST /v1/admin/team and PUT /v1/admin/team/:email (Admin only). Staff live in `admin_users`, the same collection sign-in uses. */
+/** GET, POST /v1/admin/team and PUT /v1/admin/team/:email: only roles with the `team` permission (Admin). Staff live in `admin_users`, the same collection sign-in uses. */
 export function teamRoutes(secret: string) {
   return async function routes(app: FastifyInstance): Promise<void> {
-    const staff = { preHandler: requireStaff(secret) }
+    const staff = { preHandler: requirePermission(secret, 'team') }
     const list = async () => {
       const docs = await app.database!.db.collection('admin_users').find({}).toArray()
       return docs.map(view).sort((a, b) => Number(b.active) - Number(a.active) || ROLES.indexOf(a.role as never) - ROLES.indexOf(b.role as never) || a.name.localeCompare(b.name))
@@ -44,7 +44,6 @@ export function teamRoutes(secret: string) {
     app.post('/v1/admin/team', staff, async (req, reply) => {
       if (!app.database) return reply.code(503).send({ error: 'The database is not connected.' })
       const who = sessionOf(secret, req)!
-      if (who.role !== 'Admin') return reply.code(403).send({ error: 'Only an Admin can add team members.' })
       const p = Add.safeParse(req.body)
       if (!p.success) return reply.code(400).send({ error: p.error.issues[0]?.message ?? 'Check the values.' })
       const users = app.database.db.collection('admin_users')
@@ -58,7 +57,6 @@ export function teamRoutes(secret: string) {
     app.put<{ Params: { email: string } }>('/v1/admin/team/:email', staff, async (req, reply) => {
       if (!app.database) return reply.code(503).send({ error: 'The database is not connected.' })
       const who = sessionOf(secret, req)!
-      if (who.role !== 'Admin') return reply.code(403).send({ error: 'Only an Admin can change team members.' })
       const p = Change.safeParse(req.body)
       if (!p.success) return reply.code(400).send({ error: p.error.issues[0]?.message ?? 'Check the values.' })
       const db = app.database.db

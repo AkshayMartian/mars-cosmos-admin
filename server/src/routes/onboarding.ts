@@ -8,7 +8,7 @@ import type { Config } from '../config.js'
 import type { Messenger } from '../lib/messenger.js'
 import { emailDomainCanReceive } from '../lib/emailDomain.js'
 import { loadPlans } from '../lib/plans.js'
-import { requireStaff, sessionOf } from './admin.js'
+import { requirePermission, sessionOf } from './admin.js'
 import { hashCode, hashPassword, newActivationKey, newCode, safeEqual } from '../lib/secrets.js'
 import { GST_STATES } from '../lib/states.js'
 
@@ -93,7 +93,7 @@ export function onboardingRoutes(deps: OnboardingDeps) {
   const { config, messenger, otpSecret, emailDomainOk = emailDomainCanReceive } = deps
   return async function routes(app: FastifyInstance): Promise<void> {
     // only signed-in MARS staff can send codes or create shops
-    app.addHook('onRequest', requireStaff(otpSecret))
+    app.addHook('onRequest', requirePermission(otpSecret, 'onboard'))
     const needDb = (reply: FastifyReply): Db | null => {
       if (!app.database) { void fail(reply, 503, 'The database is not connected. Set MONGODB_URI and restart the server.'); return null }
       return app.database.db
