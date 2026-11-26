@@ -8,7 +8,6 @@ export const PERMISSIONS = {
   plans: 'See plans and prices',
   'plans.edit': 'Add plans and change prices',
   whatsapp: 'See WhatsApp templates and logs',
-  releases: 'Manage app releases',
   payments: 'See payments',
   team: 'Manage the team',
   audit: 'See the audit log'

@@ -105,45 +105,6 @@ export function Plans() {
   )
 }
 
-export function Releases() {
-  const { releases, shops } = useStore()
-  const [open, setOpen] = useState(false)
-  const latest = releases[0]!.v
-  const counts: Record<string, number> = {}
-  shops.forEach((s) => s.devices.forEach((d) => { counts[d.ver] = (counts[d.ver] ?? 0) + 1 }))
-  return (
-    <>
-      <div className="head"><h1>App releases</h1><button type="button" className="btn p" onClick={() => setOpen(true)}>+ New release</button></div>
-      <div className="kpis">{Object.entries(counts).sort().reverse().map(([v, n]) => <div className="kpi" key={v}><b>{n}</b><span>PCs on {v}{v === latest ? ' (latest)' : ''}</span></div>)}</div>
-      <div className="panel">
-        <div className="tw"><table><thead><tr><th>Version</th><th>Date</th><th>What changed</th><th>Sent to</th></tr></thead><tbody>
-          {releases.map((r) => <tr key={r.v}><td className="mono"><b>{r.v}</b></td><td>{dOnly(r.date)}</td><td>{r.notes}</td><td>{r.rollout}</td></tr>)}
-        </tbody></table></div>
-        <p className="muted" style={{ margin: 0 }}>The shop’s app checks for a new version once a day and shows “Update available”. Send a release to a few shops first, then to all.</p>
-      </div>
-      <SampleNote />
-      {open && <ReleaseModal onClose={() => setOpen(false)} />}
-    </>
-  )
-}
-
-function ReleaseModal({ onClose }: { onClose: () => void }) {
-  const [v, setV] = useState('1.0.3')
-  const [notes, setNotes] = useState('')
-  const [rollout, setRollout] = useState('Pilot shop only')
-  const by = currentUser()?.name ?? '—'
-  return (
-    <Modal onClose={onClose}>
-      <h2>New app release</h2>
-      <Field label="Version" id="r-v"><input id="r-v" type="text" value={v} onChange={(e) => setV(e.target.value)} /></Field>
-      <div className="f"><label htmlFor="r-n">What changed</label><textarea id="r-n" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
-      <div className="f"><label htmlFor="r-r">Send to</label><select id="r-r" value={rollout} onChange={(e) => setRollout(e.target.value)}><option>Pilot shop only</option><option>10% of shops</option><option>All shops</option></select></div>
-      <div className="mfoot"><button type="button" className="btn" onClick={onClose}>Cancel</button>
-        <button type="button" className="btn p" onClick={() => { if (!v.trim()) return; update((s) => { s.releases.unshift({ v: v.trim(), date: Date.now(), notes, rollout }); addAudit(s, by, 'App released', null, v.trim()) }); toast('Release ' + v.trim() + ' published'); onClose() }}>Publish release</button></div>
-    </Modal>
-  )
-}
-
 export function Payments() {
   const { invoices, shops } = useStore()
   const by = currentUser()?.name ?? '—'
@@ -218,7 +179,7 @@ export function Team() {
           </tbody></table></div>
         )}
         <div className="tw"><table><thead><tr><th>Role</th><th>Can do</th></tr></thead><tbody>
-          <tr><td><b>Admin</b></td><td>Everything: dashboard, shops, onboarding, plans and prices, WhatsApp, app releases, payments, team and audit log</td></tr>
+          <tr><td><b>Admin</b></td><td>Everything: dashboard, shops, onboarding, plans and prices, WhatsApp, payments, team and audit log</td></tr>
           <tr><td><b>Support</b></td><td>Dashboard, shops, see plans, WhatsApp</td></tr>
           <tr><td><b>Sales</b></td><td>Dashboard, shops, onboard shops and send activation keys, see plans</td></tr>
         </tbody></table></div>

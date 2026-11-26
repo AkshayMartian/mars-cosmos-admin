@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { can } from './auth'
 import { Layout, NoAccess } from './components/Layout'
-import { Audit, Payments, Plans, Releases, Team } from './pages/Lists'
+import { Audit, Payments, Plans, Team } from './pages/Lists'
 import { Dashboard } from './pages/Dashboard'
 import { Login } from './pages/Login'
 import { Onboard } from './pages/Onboard'
@@ -26,7 +26,6 @@ export function App() {
         <Route path="shops/:id" element={<Need p="shops"><ShopDetail /></Need>} />
         <Route path="plans" element={<Need p="plans"><Plans /></Need>} />
         <Route path="whatsapp" element={<Need p="whatsapp"><WhatsApp /></Need>} />
-        <Route path="releases" element={<Need p="releases"><Releases /></Need>} />
         <Route path="payments" element={<Need p="payments"><Payments /></Need>} />
         <Route path="team" element={<Need p="team"><Team /></Need>} />
         <Route path="audit" element={<Need p="audit"><Audit /></Need>} />
