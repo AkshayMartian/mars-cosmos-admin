@@ -4,6 +4,7 @@ import type { Db } from 'mongodb'
 import { z } from 'zod'
 import type { Config } from '../config.js'
 import type { Messenger } from '../lib/messenger.js'
+import { RESET_PAGE } from '../lib/resetPage.js'
 import { hashAppPin, hashToken, newToken, pinProblem } from '../lib/secrets.js'
 
 /**
@@ -54,6 +55,9 @@ export function pinResetRoutes(deps: { config: Config; messenger: Messenger; sec
     const log = (db: Db, tenantId: string, action: string, details: Record<string, unknown> = {}) =>
       db.collection('audit_log').insertOne({ tenantId, action, at: new Date(), details })
 
+    // the page the emailed link opens: one self-contained HTML file, so no separate web server has to be running
+    app.get('/reset-pin', async (_req, reply) => reply.header('cache-control', 'no-store').type('text/html; charset=utf-8').send(RESET_PAGE))
+
     app.post('/v1/pin-reset/request', async (req, reply) => {
       const db = dbOf()
       if (!db) return reply.code(503).send({ error: 'The MARS server is not ready yet. Try again later.' })
@@ -88,7 +92,7 @@ export function pinResetRoutes(deps: { config: Config; messenger: Messenger; sec
 
       const email = String(who.owner['email'])
       try {
-        await messenger.sendPinResetEmail(email, String(who.shop['name']), `${config.WEB_URL.replace(/\/+$/, '')}/reset-pin?token=${token}`, RESET_MINUTES)
+        await messenger.sendPinResetEmail(email, String(who.shop['name']), `${(config.WEB_URL ?? `http://localhost:${config.PORT}`).replace(/\/+$/, '')}/reset-pin?token=${token}`, RESET_MINUTES)
       } catch (e) {
         app.log.error({ err: e instanceof Error ? e.message : e }, 'pin reset email failed')
         await pins.updateOne({ resetId: id }, { $set: { status: 'expired' } })

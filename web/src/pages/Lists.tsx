@@ -1,18 +1,99 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { get, post, put } from '../api'
 import { Link } from 'react-router-dom'
 import { currentUser } from '../auth'
 import { Chip, Field, Modal, SampleNote, toast } from '../components/ui'
 import { ADDONS, addAudit, addonName, dOnly, dt, inr, PLANS, uid, update, useStore, type State } from '../store'
 
+interface PlanRow { key: string; name: string; yearPrice: number; counters: number; includes: string[] }
+
 export function Plans() {
   const { shops } = useStore()
+  const isAdmin = currentUser()?.role === 'Admin'
+  const [plans, setPlans] = useState<PlanRow[] | null>(null)
+  const [counts, setCounts] = useState<Record<string, number>>({})
+  const [error, setError] = useState('')
+  const [editing, setEditing] = useState<{ key: string; price: string } | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [adding, setAdding] = useState(false)
+  const [nf, setNf] = useState({ name: '', price: '', counters: '1', includes: [] as string[] })
+  const [nErr, setNErr] = useState<{ name?: string; price?: string; counters?: string; server?: string }>({})
+  const openAdd = () => { setNf({ name: '', price: '', counters: '1', includes: [] }); setNErr({}); setAdding(true) }
+  const addPlan = async () => {
+    const e: typeof nErr = {}
+    const name = nf.name.trim()
+    if (name.length < 2) e.name = 'The plan name needs at least 2 characters.'
+    else if (plans?.some((p) => p.name.toLowerCase() === name.toLowerCase())) e.name = 'A plan with this name already exists.'
+    if (nf.price === '') e.price = 'Type the price in whole rupees.'
+    if (!(Number(nf.counters) >= 1 && Number(nf.counters) <= 50)) e.counters = 'Counters: a number from 1 to 50.'
+    setNErr(e)
+    if (e.name || e.price || e.counters) return
+    setSaving(true)
+    try {
+      const r = await post<{ plans: PlanRow[] }>('/v1/admin/plans', { name, yearPrice: Number(nf.price), counters: Number(nf.counters), includes: nf.includes })
+      setPlans(r.plans); setAdding(false); toast(`Plan “${name}” added.`)
+    } catch (err) { setNErr({ server: err instanceof Error ? err.message : 'Could not add the plan.' }) } finally { setSaving(false) }
+  }
+  useEffect(() => {
+    get<{ plans: PlanRow[] }>('/v1/admin/plans').then((r) => setPlans(r.plans), (e: Error) => setError(e.message))
+    get<{ shops: Array<{ plan: string }> }>('/v1/admin/shops').then((r) => setCounts(r.shops.reduce<Record<string, number>>((a, s) => ({ ...a, [s.plan]: (a[s.plan] ?? 0) + 1 }), {})), () => undefined)
+  }, [])
+  const save = async () => {
+    if (!editing) return
+    const price = Number(editing.price)
+    if (!Number.isInteger(price) || price < 0) return toast('Type the price in whole rupees.')
+    setSaving(true)
+    try {
+      const r = await put<{ plans: PlanRow[] }>(`/v1/admin/plans/${editing.key}`, { yearPrice: price })
+      setPlans(r.plans); setEditing(null); toast('Price saved.')
+    } catch (e) { toast(e instanceof Error ? e.message : 'Could not save.') } finally { setSaving(false) }
+  }
   return (
     <>
-      <div className="head"><h1>Plans &amp; add-ons</h1></div>
+      <div className="head"><h1>Plans &amp; add-ons</h1>{isAdmin && <button type="button" className="btn p" onClick={openAdd}>+ New plan</button>}</div>
+      {adding && (
+        <Modal onClose={() => setAdding(false)}>
+          <form className="stackv" onSubmit={(e) => { e.preventDefault(); void addPlan() }}>
+            <h2>New plan</h2>
+            <Field label="Plan name" id="np-name" error={nErr.name}><input id="np-name" value={nf.name} maxLength={40} autoFocus onChange={(e) => setNf({ ...nf, name: e.target.value })} aria-invalid={!!nErr.name} /></Field>
+            <div className="row">
+              <Field label="Price per year (₹)" id="np-price" error={nErr.price}><input id="np-price" inputMode="numeric" value={nf.price} onChange={(e) => setNf({ ...nf, price: e.target.value.replace(/\D/g, '').slice(0, 8) })} aria-invalid={!!nErr.price} /></Field>
+              <Field label="Counters" id="np-counters" error={nErr.counters}><input id="np-counters" inputMode="numeric" value={nf.counters} onChange={(e) => setNf({ ...nf, counters: e.target.value.replace(/\D/g, '').slice(0, 2) })} aria-invalid={!!nErr.counters} /></Field>
+            </div>
+            <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+              <legend className="muted" style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Included add-ons</legend>
+              {ADDONS.map((a) => (
+                <label key={a.k} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0' }}>
+                  <input type="checkbox" style={{ width: 18, height: 18 }} checked={nf.includes.includes(a.k)} onChange={(e) => setNf({ ...nf, includes: e.target.checked ? [...nf.includes, a.k] : nf.includes.filter((k) => k !== a.k) })} />{a.n}
+                </label>
+              ))}
+            </fieldset>
+            {nErr.server && <div className="err" role="alert">{nErr.server}</div>}
+            <div className="row" style={{ justifyContent: 'flex-end' }}>
+              <button type="button" className="btn" onClick={() => setAdding(false)}>Cancel</button>
+              <button type="submit" className="btn p" disabled={saving}>{saving ? 'Adding…' : 'Add plan'}</button>
+            </div>
+          </form>
+        </Modal>
+      )}
       <div className="panel"><h2>Plans</h2>
-        <div className="tw"><table><thead><tr><th>Plan</th><th className="r">Price / year</th><th className="r">Counters</th><th>Included</th><th className="r">Shops</th></tr></thead><tbody>
-          {PLANS.map((p) => <tr key={p.k}><td><b>{p.n}</b></td><td className="r num">{inr(p.year)}</td><td className="r num">{p.counters}</td><td>{p.inc.map(addonName).join(', ')}</td><td className="r num">{shops.filter((s) => s.plan === p.k).length}</td></tr>)}
-        </tbody></table></div>
+        {error ? <div className="empty" role="alert">Could not load the plans: {error}</div> : !plans ? <div className="empty">Loading…</div> : (
+          <div className="tw"><table><thead><tr><th>Plan</th><th className="r">Price / year</th><th className="r">Counters</th><th>Included</th><th className="r">Shops</th>{isAdmin && <th />}</tr></thead><tbody>
+            {plans.map((p) => (
+              <tr key={p.key}><td><b>{p.name}</b></td>
+                <td className="r num">{editing?.key === p.key
+                  ? <input aria-label={`${p.name} price per year`} type="text" inputMode="numeric" style={{ width: 110, textAlign: 'right' }} value={editing.price} autoFocus
+                      onChange={(e) => setEditing({ key: p.key, price: e.target.value.replace(/\D/g, '') })} onKeyDown={(e) => { if (e.key === 'Enter') void save(); if (e.key === 'Escape') setEditing(null) }} />
+                  : inr(p.yearPrice)}</td>
+                <td className="r num">{p.counters}</td><td>{p.includes.map(addonName).join(', ')}</td><td className="r num">{counts[p.key] ?? 0}</td>
+                {isAdmin && <td className="r">{editing?.key === p.key
+                  ? <><button type="button" className="btn sm p" disabled={saving} onClick={() => void save()}>Save</button> <button type="button" className="btn sm" onClick={() => setEditing(null)}>Cancel</button></>
+                  : <button type="button" className="btn sm" onClick={() => setEditing({ key: p.key, price: String(p.yearPrice) })}>Change price</button>}</td>}
+              </tr>
+            ))}
+          </tbody></table></div>
+        )}
+        <p className="muted" style={{ margin: 0 }}>Prices are kept in the database. The dashboard’s yearly plan value uses them.{isAdmin ? '' : ' Only an Admin can change them.'}</p>
       </div>
       <div className="panel"><h2>Add-ons</h2>
         <div className="tw"><table><thead><tr><th>Add-on</th><th>What it does</th><th className="r">Price / month</th><th>Internet</th><th className="r">Shops using</th></tr></thead><tbody>

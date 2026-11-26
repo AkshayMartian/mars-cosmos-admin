@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import type { Config } from '../config.js'
+import { activationKeyEmail, codeEmail, pinChangedEmail, pinResetEmail } from './emailTemplates.js'
 
 /** Everything the server sends to an owner. `live` talks to WhatsApp Business and SMTP; `console` only prints (development). */
 export interface Messenger {
@@ -27,30 +28,20 @@ export function consoleMessenger(log: (m: string) => void = console.log): Messen
   }
 }
 
-/** Emails go out by SMTP when SMTP_URL is set (a real mailbox gets the code). */
+/** Emails go out by SMTP when SMTP_URL is set (a real mailbox gets them). Every email is sent as HTML with a plain-text copy (see emailTemplates.ts). */
 function smtpSender(c: Config): (to: string, code: string) => Promise<void> {
   const mail = nodemailer.createTransport(c.SMTP_URL!)
   return async (to, code) => {
-    await mail.sendMail({
-      from: c.SMTP_FROM, to, subject: 'Your MARS Cosmos verification code',
-      text: `Your verification code is ${code}. It is valid for 10 minutes. If you did not ask for it, ignore this email.`
-    })
+    const m = codeEmail(code)
+    await mail.sendMail({ from: c.SMTP_FROM, to, subject: m.subject, text: m.text, html: m.html })
   }
 }
 
 function smtpKeySender(c: Config): (to: string, shop: string, key: string) => Promise<string | undefined> {
   const mail = nodemailer.createTransport(c.SMTP_URL!)
   return async (to, shop, key) => {
-    const info = await mail.sendMail({
-      from: c.SMTP_FROM, to, subject: 'Your MARS Cosmos activation key',
-      text: `Welcome to MARS Cosmos.
-
-Activation key for ${shop}:
-
-${key}
-
-Install the app, then enter this key and your registered mobile number to activate it. Do not share the key with anyone.`
-    })
+    const m = activationKeyEmail(shop, key)
+    const info = await mail.sendMail({ from: c.SMTP_FROM, to, subject: m.subject, text: m.text, html: m.html })
     return info.messageId
   }
 }
@@ -60,24 +51,12 @@ function smtpPinSenders(c: Config) {
   const mail = nodemailer.createTransport(c.SMTP_URL!)
   return {
     async reset(to: string, shop: string, link: string, minutes: number): Promise<void> {
-      await mail.sendMail({
-        from: c.SMTP_FROM, to, subject: 'Reset your MARS Cosmos PIN',
-        text: `Someone asked to reset the owner PIN for ${shop}.
-
-Open this link and choose a new 4-digit PIN. It works once and expires in ${minutes} minutes:
-
-${link}
-
-If this was not you, ignore this email: nothing changes until a PIN is saved.`
-      })
+      const m = pinResetEmail(shop, link, minutes)
+      await mail.sendMail({ from: c.SMTP_FROM, to, subject: m.subject, text: m.text, html: m.html })
     },
     async changed(to: string, shop: string): Promise<void> {
-      await mail.sendMail({
-        from: c.SMTP_FROM, to, subject: 'Your MARS Cosmos PIN was changed',
-        text: `The owner PIN for ${shop} was just changed from the reset link.
-
-If this was not you, call MARS support right away.`
-      })
+      const m = pinChangedEmail(shop)
+      await mail.sendMail({ from: c.SMTP_FROM, to, subject: m.subject, text: m.text, html: m.html })
     }
   }
 }

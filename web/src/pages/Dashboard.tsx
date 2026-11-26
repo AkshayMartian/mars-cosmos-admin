@@ -1,70 +1,72 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { get } from '../api'
 import { currentUser } from '../auth'
-import { Chip, SampleNote, toast } from '../components/ui'
-import { addAudit, ago, DAY, dOnly, inr, lastSeen, planOf, statusOf, update, useStore } from '../store'
+import { Chip } from '../components/ui'
+import { ago, dOnly, inr } from '../store'
 
-interface Health { ok: boolean; database: 'ok' | 'down' | 'not configured' }
+interface DashboardData {
+  total: number; active: number; pending: number; suspended: number; expired: number
+  yearValue: number
+  renewSoon: Array<{ tenantId: string; name: string; plan: string; expires: string; daysLeft: number }>
+  offline: Array<{ tenantId: string; name: string; lastSeen: string; mobile: string }>
+  recent: Array<{ at: string; by: string; action: string; shop: string | null; details: string }>
+}
+
+const phone = (m: string): string => (m.length === 10 ? `${m.slice(0, 5)} ${m.slice(5)}` : m)
 
 export function Dashboard() {
-  const { shops, audit } = useStore()
-  const nav = useNavigate()
   const user = currentUser()!
-  const [health, setHealth] = useState<Health | 'offline' | null>(null)
-  useEffect(() => { fetch('/api/health').then((r) => r.json() as Promise<Health>).then(setHealth, () => setHealth('offline')) }, [])
-  const server = health === null ? 'Checking the server…' : health === 'offline' ? 'Server not reachable' : health.database === 'ok' ? 'Server and database connected' : health.database === 'down' ? 'Server up, database down' : 'Server up, no database configured'
-  const serverTone = health !== null && health !== 'offline' && health.database === 'ok' ? 'good' : health === null ? 'grey' : 'warn'
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [error, setError] = useState('')
+  useEffect(() => {
+    get<DashboardData>('/v1/admin/dashboard').then(setData, (e: Error) => setError(e.message))
+  }, [])
 
-  const T = Date.now()
-  const active = shops.filter((s) => ['Active', 'Expiring'].includes(statusOf(s)[0])).length
-  const trials = shops.filter((s) => statusOf(s)[0] === 'Trial').length
-  const expiring = shops.filter((s) => s.status !== 'suspended' && s.expiry > T && s.expiry - T < 30 * DAY)
-  const offline = shops.filter((s) => s.devices.length && T - lastSeen(s)! > 7 * DAY && s.status !== 'suspended')
-  const msgs = shops.reduce((a, s) => a + (s.wa.used ?? 0), 0)
-  const yearRev = shops.filter((s) => s.status === 'active' && s.expiry > T).reduce((a, s) => a + planOf(s).year, 0)
-  const go = (filter: string) => (e: React.MouseEvent) => { e.preventDefault(); nav('/shops', { state: { filter } }) }
+  const n = (v: number | undefined): string => (data ? String(v) : '…')
 
   return (
     <>
       <div className="head">
-        <div><h1>Good day, {user.name.split(' ')[0]}</h1><div className="muted">{shops.length} shops on MARS POS</div></div>
-        <div className="row mid"><Chip tone={serverTone}>{server}</Chip><Link className="btn p" to="/onboard">+ Onboard a shop</Link></div>
+        <div><h1>Good day, {user.name.split(' ')[0]}</h1><div className="muted">{data ? `${data.total} shops on MARS POS` : 'Loading…'}</div></div>
+        <Link className="btn p" to="/onboard">+ Onboard a shop</Link>
       </div>
+      {error && <div className="empty" role="alert">Could not load the dashboard: {error}</div>}
       <div className="kpis">
-        <a className="kpi" href="/shops" onClick={go('active')}><b>{active}</b><span>Active shops</span></a>
-        <a className="kpi" href="/shops" onClick={go('trial')}><b>{trials}</b><span>On trial</span></a>
-        <a className="kpi" href="/shops" onClick={go('expiring')}><b style={{ color: 'var(--warn)' }}>{expiring.length}</b><span>Expiring in 30 days</span></a>
-        <a className="kpi" href="/shops" onClick={go('offline')}><b style={{ color: 'var(--bad)' }}>{offline.length}</b><span>Not online for 7+ days</span></a>
-        <Link className="kpi" to="/whatsapp"><b>{msgs.toLocaleString('en-IN')}</b><span>WhatsApp messages this month</span></Link>
-        <div className="kpi"><b>{inr(yearRev)}</b><span>Yearly plan value (paid shops)</span></div>
+        <div className="kpi"><b>{n(data?.active)}</b><span>Active shops</span></div>
+        <div className="kpi"><b>{n(data?.pending)}</b><span>Waiting for activation</span></div>
+        <div className="kpi"><b style={{ color: 'var(--warn)' }}>{n(data?.renewSoon.length)}</b><span>Expiring in 30 days</span></div>
+        <div className="kpi"><b style={{ color: 'var(--bad)' }}>{n(data?.offline.length)}</b><span>Not online for 7+ days</span></div>
+        <div className="kpi"><b style={{ color: 'var(--bad)' }}>{data ? data.expired + data.suspended : '…'}</b><span>Expired or suspended</span></div>
+        <div className="kpi"><b>{data ? inr(data.yearValue) : '…'}</b><span>Yearly plan value (active shops)</span></div>
       </div>
       <div className="cols">
         <div className="panel"><h2>Renew soon</h2>
-          {expiring.length ? (
-            <div className="tw"><table><thead><tr><th>Shop</th><th>Plan</th><th>Expires</th><th /></tr></thead><tbody>
-              {expiring.map((s) => (
-                <tr key={s.id}><td><Link to={`/shops/${s.id}`}>{s.name}</Link></td><td>{planOf(s).n}</td>
-                  <td>{dOnly(s.expiry)} <Chip tone={statusOf(s)[1]}>{Math.ceil((s.expiry - T) / DAY)} days</Chip></td>
-                  <td><button type="button" className="btn sm" onClick={() => { update((st) => { const x = st.shops.find((y) => y.id === s.id)!; x.expiry = Math.max(x.expiry, Date.now()) + 365 * DAY; x.status = 'active'; addAudit(st, user.name, 'Licence renewed', s.id, '1 year') }); toast(`${s.name} renewed for 1 year`) }}>Renew 1 year</button></td></tr>
+          {data?.renewSoon.length ? (
+            <div className="tw"><table><thead><tr><th>Shop</th><th>Plan</th><th>Expires</th></tr></thead><tbody>
+              {data.renewSoon.map((s) => (
+                <tr key={s.tenantId}><td>{s.name}</td><td>{s.plan}</td>
+                  <td>{dOnly(new Date(s.expires).getTime())} <Chip tone="warn">{s.daysLeft} {s.daysLeft === 1 ? 'day' : 'days'}</Chip></td></tr>
               ))}
             </tbody></table></div>
-          ) : <div className="empty">Nothing expiring in 30 days.</div>}
+          ) : <div className="empty">{data ? 'Nothing expiring in 30 days.' : 'Loading…'}</div>}
         </div>
         <div className="panel"><h2>Not online for 7+ days</h2>
           <p className="muted" style={{ margin: 0 }}>Call these shops: licence checks and WhatsApp stop while the PC is offline.</p>
-          {offline.length ? (
+          {data?.offline.length ? (
             <div className="tw"><table><thead><tr><th>Shop</th><th>Last seen</th><th>Phone</th></tr></thead><tbody>
-              {offline.map((s) => <tr key={s.id}><td><Link to={`/shops/${s.id}`}>{s.name}</Link></td><td>{ago(lastSeen(s)!)}</td><td className="mono">{s.mobile}</td></tr>)}
+              {data.offline.map((s) => <tr key={s.tenantId}><td>{s.name}</td><td>{ago(new Date(s.lastSeen).getTime())}</td><td className="mono">{phone(s.mobile)}</td></tr>)}
             </tbody></table></div>
-          ) : <div className="empty">All shops checked in this week.</div>}
+          ) : <div className="empty">{data ? 'All shops checked in this week.' : 'Loading…'}</div>}
         </div>
       </div>
       <div className="panel"><h2>Recent changes</h2>
-        <div className="tw"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Shop</th><th>Details</th></tr></thead><tbody>
-          {audit.slice(0, 6).map((a, i) => <tr key={i}><td>{ago(a.at)}</td><td>{a.by}</td><td>{a.action}</td><td>{a.shop && <Link to={`/shops/${a.shop}`}>{shops.find((s) => s.id === a.shop)?.name}</Link>}</td><td>{a.details}</td></tr>)}
-        </tbody></table></div>
+        {data?.recent.length ? (
+          <div className="tw"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Shop</th><th>Details</th></tr></thead><tbody>
+            {data.recent.map((a, i) => <tr key={i}><td>{ago(new Date(a.at).getTime())}</td><td>{a.by}</td><td>{a.action}</td><td>{a.shop ?? '—'}</td><td>{a.details}</td></tr>)}
+          </tbody></table></div>
+        ) : <div className="empty">{data ? 'No changes yet.' : 'Loading…'}</div>}
       </div>
-      <SampleNote />
     </>
   )
 }

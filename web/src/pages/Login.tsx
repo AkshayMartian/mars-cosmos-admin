@@ -13,7 +13,7 @@ export function Login() {
   const [busy, setBusy] = useState(false)
 
   const submit = async () => {
-    if (!email.trim() || !password) return setError('Type your email and PIN.')
+    if (!email.trim() || !password) return setError('Type your email and password.')
     setBusy(true); setError('')
     try {
       const s = await post<Session>('/v1/admin/login', { email: email.trim(), password })
@@ -29,7 +29,7 @@ export function Login() {
         <h1>Sign in</h1>
         <p className="muted" style={{ margin: 0 }}>For the MARS Technolabs team only. Shop owners use the MARS POS app.</p>
         <div className="f"><label htmlFor="em">Email</label><input id="em" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-        <div className="f"><label htmlFor="pw">PIN</label><PasswordInput id="pw" inputMode="numeric" maxLength={4} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+        <div className="f"><label htmlFor="pw">Password</label><PasswordInput id="pw" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
         {error && <div className="err" role="alert">{error}</div>}
         <button className="btn p" type="submit" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
       </form>

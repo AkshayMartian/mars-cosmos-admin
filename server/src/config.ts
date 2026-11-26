@@ -27,8 +27,8 @@ const Env = z.object({
   WHATSAPP_OTP_TEMPLATE: z.string().default('mars_verification_code'),
   WHATSAPP_KEY_TEMPLATE: z.string().default('mars_activation_key'),
   WHATSAPP_TEMPLATE_LANG: z.string().default('en'),
-  /** Public address of the web app: the PIN-reset link in the owner's email points here (/reset-pin?token=...). */
-  WEB_URL: z.string().default('http://localhost:5173'),
+  /** Public address the PIN-reset link in the owner's email points to (/reset-pin?token=...). Empty = this server's own address; the server serves the reset page itself. */
+  WEB_URL: optional,
   /** e.g. smtps://user:pass@smtp.example.com:465 */
   SMTP_URL: optional,
   SMTP_FROM: z.string().default('MARS Cosmos <no-reply@example.com>')

@@ -297,3 +297,46 @@ describe('staff sign-in', () => {
     await app.close()
   })
 })
+
+describe('plans come from the database', () => {
+  const asSupport = { cookie: 'mars_admin=' + makeSessionToken('test-secret', { email: 's@example.com', name: 'Sup', role: 'Support' }) }
+  const add = (app: any, payload: Record<string, unknown>, headers: Record<string, string> = {}) =>
+    app.inject({ method: 'POST', url: '/v1/admin/plans', payload, headers }) as Promise<{ statusCode: number; json: () => any }> // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  it('an Admin adds a plan: it gets a short key, is listed by price, and a duplicate name is refused', async () => {
+    const s = setup(); const app = await s.build()
+    const r = await add(app, { name: 'Family Pack', yearPrice: 9500, counters: 3, includes: ['alterations'] })
+    expect(r.statusCode).toBe(201)
+    expect(r.json().added).toBe('family_pack')
+    expect(r.json().plans.map((p: { key: string }) => p.key)).toEqual(['basic', 'smart', 'family_pack', 'pro'])
+    expect(s.database.c('plans').docs.find((d) => d['key'] === 'family_pack')).toMatchObject({ name: 'Family Pack', yearPrice: 9500, counters: 3, includes: ['alterations'] })
+    expect((await add(app, { name: 'family pack', yearPrice: 1 })).statusCode).toBe(409)
+    expect((await add(app, { name: 'Family-Pack', yearPrice: 1000 })).json().added).toBe('family_pack_2') // a different name that makes the same short key
+    expect(s.database.c('audit_log').docs.some((d) => d['action'] === 'plan_added')).toBe(true)
+    await app.close()
+  })
+
+  it('refuses non-Admin staff and bad values', async () => {
+    const s = setup(); const app = await s.build()
+    expect((await add(app, { name: 'Gold', yearPrice: 100 }, asSupport)).statusCode).toBe(403)
+    expect((await add(app, { name: 'G', yearPrice: 100 })).statusCode).toBe(400)
+    expect((await add(app, { name: 'Gold', yearPrice: -1 })).statusCode).toBe(400)
+    expect((await add(app, { name: 'Gold', yearPrice: 'abc' })).json().error).toContain('whole rupees')
+    expect((await add(app, { name: 'Gold', yearPrice: 100, counters: 0 })).statusCode).toBe(400)
+    expect(s.database.c('plans').docs.map((d) => d['key'])).not.toContain('gold')
+    await app.close()
+  })
+
+  it('onboarding accepts a plan added later, and refuses one that is not in the database', async () => {
+    const s = setup(); const app = await s.build()
+    await verifyBoth(app, s.sent)
+    const unknown = await app.inject({ method: 'POST', url: '/v1/onboarding/submit', payload: form({ plan: 'gold' }) })
+    expect(unknown.statusCode).toBe(400)
+    expect(unknown.json().fields).toEqual({ plan: 'Choose one of the listed plans.' })
+    expect((await add(app, { name: 'Gold', yearPrice: 20000, counters: 4 })).statusCode).toBe(201)
+    const ok = await app.inject({ method: 'POST', url: '/v1/onboarding/submit', payload: form({ plan: 'gold' }) })
+    expect(ok.statusCode).toBe(201)
+    expect(s.database.c('shops').docs[0]).toMatchObject({ plan: 'gold' })
+    await app.close()
+  })
+})

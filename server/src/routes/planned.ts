@@ -8,8 +8,7 @@ import type { FastifyInstance } from 'fastify'
 export const PLANNED: ReadonlyArray<{ method: 'GET' | 'POST'; url: string; who: 'app' | 'owner web page' | 'portal'; what: string }> = [
   { method: 'POST', url: '/v1/refresh', who: 'app', what: 'weekly check: renewed licence, pending PIN hash' },
   { method: 'POST', url: '/v1/trial/otp', who: 'app', what: 'send the free-trial one-time code' },
-  { method: 'POST', url: '/v1/trial/verify', who: 'app', what: 'code -> 14-day trial licence' },
-  { method: 'GET', url: '/v1/admin/shops', who: 'portal', what: 'shops list' }
+  { method: 'POST', url: '/v1/trial/verify', who: 'app', what: 'code -> 14-day trial licence' }
 ]
 
 export async function plannedRoutes(app: FastifyInstance): Promise<void> {

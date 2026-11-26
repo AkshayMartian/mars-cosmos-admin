@@ -13,7 +13,7 @@ const [email, name, role] = process.argv.slice(2)
 const password = process.env['ADMIN_PASSWORD']
 if (!email || !name || !role || !password) { console.error('Usage: ADMIN_PASSWORD=... npm run admin:create -w server -- <email> <name> <Admin|Support|Sales>'); process.exit(1) }
 if (!['Admin', 'Support', 'Sales'].includes(role)) { console.error('Role must be Admin, Support or Sales.'); process.exit(1) }
-if (!/^\d{4}$/.test(password)) { console.error('The portal password is a 4-digit PIN (digits only).'); process.exit(1) }
+if (password.length < 8) { console.error('Use a password of at least 8 characters.'); process.exit(1) }
 
 const config = loadConfig()
 if (!config.MONGODB_URI) { console.error('Set MONGODB_URI in .env first.'); process.exit(1) }

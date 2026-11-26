@@ -185,3 +185,25 @@ describe('owner forgot PIN: the web page and the hand-off to the app', () => {
     expect((await app.inject({ method: 'POST', url: '/v1/pin-reset/applied', payload: { ...ident, machine: 'ZZZZZZZZZZZZZZZZ', resetId } })).statusCode).toBe(403)
   })
 })
+
+describe('the reset page', () => {
+  it('is served by the server itself, and the link points to the server when WEB_URL is not set', async () => {
+    const mails: string[] = []
+    const database = fakeDatabase()
+    const now = new Date()
+    void database.c('shops').insertOne({ tenantId: TENANT, name: 'Mars', status: 'active', plan: 'Starter', mode: 'cloud' })
+    void database.c('owners').insertOne({ tenantId: TENANT, fullName: 'N', mobile: '6784934853', email: 'a@b.co', passwordHash: 'x', createdAt: now })
+    void database.c('activation_keys').insertOne({ key: KEY, tenantId: TENANT, mobile: '6784934853', status: 'activated', machineId: MACHINE, issuedAt: now })
+    const messenger: Messenger = {
+      async sendCode() { /* unused */ }, async sendActivationKey() { return {} }, async sendActivationKeyEmail() { return {} },
+      async sendPinResetEmail(_to, _shop, link) { mails.push(link) }, async sendPinChangedEmail() { /* unused */ }
+    }
+    const app = await buildApp(loadConfig({ OTP_SECRET: 'test-secret', PORT: '4100' }), database, { messenger, signer: null })
+    expect((await request(app)).statusCode).toBe(200)
+    expect(mails[0]).toMatch(/^http:\/\/localhost:4100\/reset-pin\?token=/)
+    const page = await app.inject({ method: 'GET', url: '/reset-pin?token=abc' })
+    expect(page.statusCode).toBe(200)
+    expect(page.headers['content-type']).toContain('text/html')
+    expect(page.body).toContain('Choose a new PIN')
+  })
+})

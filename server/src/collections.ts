@@ -96,8 +96,18 @@ export const COLLECTIONS: Record<string, CollectionDef> = {
     indexes: [[{ email: 1 }, { unique: true }]]
   },
 
+  // plans and their yearly prices (defaults are added when missing; staff edit them on the Plans page)
+  plans: {
+    validator: schema(['key', 'name', 'yearPrice', 'counters'], {
+      key: str({ pattern: '^[a-z0-9_]{2,20}$' }), name: str({ minLength: 2, maxLength: 40 }),
+      yearPrice: { bsonType: ['int', 'long', 'double'], minimum: 0 }, counters: { bsonType: ['int', 'long'], minimum: 1 },
+      includes: { bsonType: 'array', items: str() }, createdAt: date, updatedAt: date
+    }),
+    indexes: [[{ key: 1 }, { unique: true }]]
+  },
+
   audit_log: {
-    validator: schema(['action', 'at'], { tenantId: str(), action: str(), at: date, details: { bsonType: 'object' } }),
+    validator: schema(['action', 'at'], { tenantId: str(), action: str(), at: date, by: str(), details: { bsonType: 'object' } }),
     indexes: [[{ tenantId: 1, at: -1 }, {}]]
   }
 }

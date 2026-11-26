@@ -11,6 +11,7 @@
     "test": "vitest run",
     "db:setup": "tsx scripts/setup-db.ts",
     "licence:keygen": "tsx scripts/licence-keygen.ts",
+    "email:preview": "tsx scripts/email-preview.ts",
     "admin:create": "tsx scripts/create-admin.ts"
   },
   "dependencies": {

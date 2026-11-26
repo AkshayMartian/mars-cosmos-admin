@@ -7,7 +7,8 @@ import { z, ZodError } from 'zod'
 import type { Config } from '../config.js'
 import type { Messenger } from '../lib/messenger.js'
 import { emailDomainCanReceive } from '../lib/emailDomain.js'
-import { requireStaff } from './admin.js'
+import { loadPlans } from '../lib/plans.js'
+import { requireStaff, sessionOf } from './admin.js'
 import { hashCode, hashPassword, newActivationKey, newCode, safeEqual } from '../lib/secrets.js'
 import { GST_STATES } from '../lib/states.js'
 
@@ -52,7 +53,8 @@ const SubmitBody = z.object({
   city: text('city', 2, 60),
   stateCode: z.string().refine((c) => c in GST_STATES, 'Choose a State.'),
   pincode: z.string().regex(/^[1-9]\d{5}$/, 'Pincode has 6 digits.'),
-  plan: z.enum(['basic', 'smart', 'pro']).default('smart'),
+  // the key of a plan in the database (checked against the plans collection on submit)
+  plan: z.string().regex(/^[a-z0-9_]{2,20}$/, 'Choose a plan.').default('smart'),
   mode: z.enum(['cloud', 'local']).default('cloud'),
   counters: z.coerce.number().int().min(1).max(50).default(1),
   days: z.coerce.number().int().min(1).max(3660).default(365)
@@ -149,6 +151,7 @@ export function onboardingRoutes(deps: OnboardingDeps) {
       const db = needDb(reply); if (!db) return reply
       const p = SubmitBody.safeParse(req.body); if (!p.success) return invalid(reply, p.error)
       const b = p.data
+      if (!(await loadPlans(db)).some((x) => x.key === b.plan)) return fail(reply, 400, 'Choose one of the listed plans.', { plan: 'Choose one of the listed plans.' })
 
       let photo: { bytes: Buffer; ext: 'jpg' | 'png' } | undefined
       if (b.photo) {
@@ -206,7 +209,7 @@ export function onboardingRoutes(deps: OnboardingDeps) {
       }
 
       await otps.deleteMany({ channel: 'email', target: b.email })
-      await db.collection('audit_log').insertOne({ tenantId, action: 'shop_onboarded', at: now, details: { shop: b.shopName, plan: b.plan } })
+      await db.collection('audit_log').insertOne({ tenantId, action: 'shop_onboarded', at: now, by: sessionOf(otpSecret, req)?.name ?? 'Staff', details: { shop: b.shopName, plan: b.plan } })
 
       // the key goes to the owner's verified email (WhatsApp later); if that fails the shop is still saved and staff can resend
       let whatsapp: { status: 'sent' | 'failed'; error?: string }

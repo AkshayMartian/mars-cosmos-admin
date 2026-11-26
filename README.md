@@ -53,7 +53,7 @@ Setup: `npm run licence:keygen -w server -- licence-private.pem` (put the printe
 | desktop app | `POST /v1/trial/otp`, `POST /v1/trial/verify` | free trial |
 | desktop app | `POST /v1/pin-reset/request`, `GET /v1/pin-reset/status`, `POST /v1/pin-reset/applied` | owner forgot PIN |
 | owner web page | `GET /v1/pin-reset/validate`, `POST /v1/pin-reset/complete` | the page the emailed link opens (`/reset-pin?token=...`, address from `WEB_URL`) |
-| portal | `POST /v1/admin/login`, `GET /v1/admin/shops` | staff sign-in, shops list |
+| portal | `POST /v1/admin/login`, `GET /v1/admin/dashboard`, `GET /v1/admin/shops` | staff sign-in, dashboard figures, shops list (built) |
 
 The licence is an Ed25519-signed token (`MARSL1.<payload>.<signature>`); the private key stays on this server, the app holds only the public key. Request and licence formats are in `mars-pos-desktop` → `project-notes/licence/licence.md`.
 

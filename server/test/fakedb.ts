@@ -34,6 +34,15 @@ export class FakeCollection {
     if (sk) r = [...r].sort((a, b) => (a[sk] - b[sk]) * (dir as number))
     return r[0] ?? null
   }
+  find(f: Doc) {
+    let r = this.docs.filter((d) => matches(d, f))
+    const cursor = {
+      sort(s: Doc) { const [k, dir] = Object.entries(s)[0]!; r = [...r].sort((a, b) => (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0) * (dir as number)); return cursor },
+      limit(n: number) { r = r.slice(0, n); return cursor },
+      async toArray() { return r }
+    }
+    return cursor
+  }
   async insertOne(d: Doc) {
     for (const u of this.uniques) if (d[u] !== undefined && this.docs.some((x) => x[u] === d[u])) throw Object.assign(new Error('E11000 duplicate key'), { code: 11000 })
     const doc = { _id: randomUUID(), ...d }

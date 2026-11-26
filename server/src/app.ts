@@ -11,6 +11,8 @@ import { activateRoutes } from './routes/activate.js'
 import { adminRoutes } from './routes/admin.js'
 import { onboardingRoutes } from './routes/onboarding.js'
 import { healthRoutes } from './routes/health.js'
+import { dashboardRoutes } from './routes/dashboard.js'
+import { planRoutes } from './routes/plans.js'
 import { pinResetRoutes } from './routes/pinreset.js'
 import { plannedRoutes } from './routes/planned.js'
 
@@ -34,6 +36,8 @@ export async function buildApp(config: Config, database: Database | null = null,
   // one secret for one-time codes and staff sessions (random per run when OTP_SECRET is not set: sessions then end on restart)
   const secret = config.OTP_SECRET ?? randomBytes(32).toString('hex')
   await app.register(adminRoutes(secret, process.env['NODE_ENV'] === 'production'))
+  await app.register(dashboardRoutes(secret))
+  await app.register(planRoutes(secret))
   await app.register(onboardingRoutes({ config, messenger, otpSecret: secret, ...(options.emailDomainOk ? { emailDomainOk: options.emailDomainOk } : {}) }))
   await app.register(activateRoutes(config, signer))
   await app.register(pinResetRoutes({ config, messenger, secret }))

@@ -17,6 +17,13 @@ export function ResetPin() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const d = (v: string) => v.replace(/\D/g, '').slice(0, 4)
+  const [seen1, setSeen1] = useState(false)
+  const four = p1.length === 4
+  const easy = four && (EASY.has(p1) || /^(\d)\1+$/.test(p1))
+  const same = four && p1 === p2
+  const m1 = easy ? 'Not an easy PIN like 1111, 1234 or 0000. Choose another.' : seen1 && p1.length < 4 ? (p1 ? `The PIN needs 4 digits (${p1.length} so far).` : 'Enter a 4-digit PIN.') : ''
+  const m2 = p2 && (p2 !== p1.slice(0, p2.length) || (p2.length === 4 && p2 !== p1)) ? 'The two PINs do not match.' : ''
+  const ok = (on: boolean) => ({ color: on ? '#15803D' : undefined, fontWeight: on ? 600 : undefined })
 
   // is the link good, unused and not expired? (no token at all is the same as a dead link)
   useEffect(() => {
@@ -51,10 +58,10 @@ export function ResetPin() {
             <div className="muted">{shop ? `${shop} · Owner` : 'Owner'}</div>
             <h1>Choose a new PIN</h1>
             <div className="muted">This link works once and expires in {minutes} {minutes === 1 ? 'minute' : 'minutes'}.</div>
-            <div className="f"><label htmlFor="p1">New PIN (4 digits)</label><PasswordInput id="p1" inputMode="numeric" value={p1} onChange={(e) => setP1(d(e.target.value))} autoFocus /></div>
-            <div className="f"><label htmlFor="p2">Confirm new PIN</label><PasswordInput id="p2" inputMode="numeric" value={p2} onChange={(e) => setP2(d(e.target.value))} /></div>
-            {error ? <div className="err" role="alert">{error}</div> : <div className="hint">Exactly 4 digits. Not an easy PIN like 1111, 1234 or 0000.</div>}
-            <button className="btn p wide" type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save new PIN'}</button>
+            <div className="f"><label htmlFor="p1">New PIN (4 digits)</label><PasswordInput id="p1" inputMode="numeric" value={p1} onChange={(e) => { setP1(d(e.target.value)); setError('') }} onBlur={() => setSeen1(true)} aria-invalid={!!m1} autoFocus />{m1 && <div className="err" role="alert">{m1}</div>}</div>
+            <div className="f"><label htmlFor="p2">Confirm new PIN</label><PasswordInput id="p2" inputMode="numeric" value={p2} onChange={(e) => { setP2(d(e.target.value)); setError('') }} aria-invalid={!!m2} />{m2 && <div className="err" role="alert">{m2}</div>}</div>
+            {error ? <div className="err" role="alert">{error}</div> : <ul className="hint" style={{ margin: 0, paddingLeft: 18 }}><li style={ok(four)}>4 digits, numbers only</li><li style={ok(four && !easy)}>Not an easy PIN (1111, 1234, 0000...)</li><li style={ok(same)}>Both PINs match</li></ul>}
+            <button className="btn p wide" type="submit" disabled={busy || !four || easy || !same}>{busy ? 'Saving…' : 'Save new PIN'}</button>
             <div className="hint">Not you? Close this page. Nothing changes until a PIN is saved.</div>
           </form>
         )}
