@@ -179,8 +179,8 @@ export function Team() {
           </tbody></table></div>
         )}
         <div className="tw"><table><thead><tr><th>Role</th><th>Can do</th></tr></thead><tbody>
-          <tr><td><b>Admin</b></td><td>Everything: dashboard, shops, onboarding, plans and prices, WhatsApp, payments, team and audit log</td></tr>
-          <tr><td><b>Support</b></td><td>Dashboard, shops, see plans, WhatsApp</td></tr>
+          <tr><td><b>Admin</b></td><td>Everything: dashboard, shops, onboarding, plans and prices, payments, team and audit log</td></tr>
+          <tr><td><b>Support</b></td><td>Dashboard, shops, see plans</td></tr>
           <tr><td><b>Sales</b></td><td>Dashboard, shops, onboard shops and send activation keys, see plans</td></tr>
         </tbody></table></div>
         <p className="muted" style={{ margin: 0 }}>A role change applies on the member’s next page load. Menu items a role cannot use are hidden, and the server refuses them too.</p>

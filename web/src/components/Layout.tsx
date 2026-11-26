@@ -11,7 +11,7 @@ import { Toast } from './ui'
 
 // [path, label, permission needed, "later" badge]
 const MENU: Array<[string, string, string, boolean?] | 'hr'> = [
-  ['/', 'Dashboard', 'dashboard'], ['/shops', 'Shops', 'shops'], ['/onboard', 'Onboard a shop', 'onboard'], ['/plans', 'Plans & add-ons', 'plans'], ['/whatsapp', 'WhatsApp', 'whatsapp'], 'hr',
+  ['/', 'Dashboard', 'dashboard'], ['/shops', 'Shops', 'shops'], ['/onboard', 'Onboard a shop', 'onboard'], ['/plans', 'Plans & add-ons', 'plans'], 'hr',
   ['/payments', 'Payments', 'payments', true], 'hr', ['/team', 'Team', 'team'], ['/audit', 'Audit log', 'audit']
 ]
 

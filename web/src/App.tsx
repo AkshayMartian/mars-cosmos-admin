@@ -9,7 +9,6 @@ import { Onboard } from './pages/Onboard'
 import { ResetPin } from './pages/ResetPin'
 import { ShopDetail } from './pages/ShopDetail'
 import { Shops } from './pages/Shops'
-import { WhatsApp } from './pages/WhatsApp'
 
 /** A page only roles with `p` may open (the server refuses their data anyway). */
 const Need = ({ p, children }: { p: string; children: ReactNode }) => (can(p) ? <>{children}</> : <NoAccess />)
@@ -25,7 +24,6 @@ export function App() {
         <Route path="shops" element={<Need p="shops"><Shops /></Need>} />
         <Route path="shops/:id" element={<Need p="shops"><ShopDetail /></Need>} />
         <Route path="plans" element={<Need p="plans"><Plans /></Need>} />
-        <Route path="whatsapp" element={<Need p="whatsapp"><WhatsApp /></Need>} />
         <Route path="payments" element={<Need p="payments"><Payments /></Need>} />
         <Route path="team" element={<Need p="team"><Team /></Need>} />
         <Route path="audit" element={<Need p="audit"><Audit /></Need>} />

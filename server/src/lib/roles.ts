@@ -7,7 +7,6 @@ export const PERMISSIONS = {
   onboard: 'Onboard shops and send activation keys',
   plans: 'See plans and prices',
   'plans.edit': 'Add plans and change prices',
-  whatsapp: 'See WhatsApp templates and logs',
   payments: 'See payments',
   team: 'Manage the team',
   audit: 'See the audit log'
@@ -18,7 +17,7 @@ const ALL = Object.keys(PERMISSIONS) as Permission[]
 
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   Admin: ALL,
-  Support: ['dashboard', 'shops', 'plans', 'whatsapp'],
+  Support: ['dashboard', 'shops', 'plans'],
   Sales: ['dashboard', 'shops', 'onboard', 'plans']
 }
 
