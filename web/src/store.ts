@@ -126,6 +126,7 @@ export const dOnly = (t: number): string => new Date(t).toLocaleDateString('en-I
 export const dt = (t: number): string => new Date(t).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 export function ago(t: number): string {
   const m = Math.round((Date.now() - t) / 6e4)
+  if (m < 1) return 'just now'
   if (m < 60) return m + ' min ago'
   const h = Math.round(m / 60)
   return h < 48 ? h + ' h ago' : Math.round(h / 24) + ' days ago'

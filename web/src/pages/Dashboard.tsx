@@ -28,7 +28,7 @@ export function Dashboard() {
   return (
     <>
       <div className="head">
-        <div><h1>Good day, {user.name.split(' ')[0]}</h1><div className="muted">{data ? `${data.total} shops on MARS POS` : 'Loading…'}</div></div>
+        <div><h1>Good day, {user.name.split(' ')[0]}</h1><div className="muted">{data ? `${data.total} ${data.total === 1 ? 'shop' : 'shops'} on MARS POS` : 'Loading…'}</div></div>
         {can('onboard') && <Link className="btn p" to="/onboard">+ Onboard a shop</Link>}
       </div>
       {error && <div className="empty" role="alert">Could not load the dashboard: {error}</div>}

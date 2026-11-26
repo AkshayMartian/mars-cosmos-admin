@@ -57,8 +57,8 @@ const BLANK = { name: '', mobile: '', email: '', password: '', shop: '', contact
 
 export function Onboard() {
   const [f, setF] = useState(BLANK)
-  // plans and prices from the database; the built-in list is only a fallback while it loads or if the server cannot answer
-  const [plans, setPlans] = useState(PLANS.map((p) => ({ key: p.k, name: p.n, yearPrice: p.year })))
+  // plans and prices from the database; no price is shown until they arrive (a built-in price could be out of date)
+  const [plans, setPlans] = useState<Array<{ key: string; name: string; yearPrice?: number }>>(PLANS.map((p) => ({ key: p.k, name: p.n })))
   useEffect(() => { get<{ plans: Array<{ key: string; name: string; yearPrice: number }> }>('/v1/admin/plans').then((r) => setPlans(r.plans), () => undefined) }, [])
   const [ev, setEv] = useState<Verify>('idle')
   const [created, setCreated] = useState<{ key: string; whatsapp: { status: 'sent' | 'failed'; error?: string }; mobile: string; shop: string } | null>(null)
@@ -176,7 +176,7 @@ export function Onboard() {
           <section className="panel">
             <h2>4 · Plan and licence</h2>
             <div className="grid3">
-              <Field label="Plan" id="plan"><select id="plan" value={f.plan} onChange={(e) => set('plan')(e.target.value)}>{plans.map((p) => <option key={p.key} value={p.key}>{p.name} · {inr(p.yearPrice)} / year</option>)}</select></Field>
+              <Field label="Plan" id="plan"><select id="plan" value={f.plan} onChange={(e) => set('plan')(e.target.value)}>{plans.map((p) => <option key={p.key} value={p.key}>{p.yearPrice === undefined ? p.name : `${p.name} · ${inr(p.yearPrice)} / year`}</option>)}</select></Field>
               <Field label="Backup mode" id="backup"><select id="backup" value={f.backup} onChange={(e) => set('backup')(e.target.value)}><option value="cloud">Cloud backup</option><option value="local">Local-only</option></select></Field>
               <Field label="Counters" id="counters"><input id="counters" type="text" inputMode="numeric" value={f.counters} onChange={(e) => set('counters')(digits(e.target.value, 2))} /></Field>
               <Field label="Valid for (days)" id="days"><input id="days" type="text" inputMode="numeric" value={f.days} onChange={(e) => set('days')(digits(e.target.value, 4))} /></Field>

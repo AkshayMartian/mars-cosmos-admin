@@ -17,8 +17,12 @@ const MENU: Array<[string, string, string, boolean?] | 'hr'> = [
 
 /** The menu for this member: items their role cannot use are left out, and so are dividers that would end up empty or doubled. */
 function menuFor(allowed: string[]): typeof MENU {
-  const items = MENU.filter((m) => m === 'hr' || allowed.includes(m[2]))
-  return items.filter((m, i) => m !== 'hr' || (i > 0 && i < items.length - 1 && items[i - 1] !== 'hr'))
+  const out: typeof MENU = []
+  for (const m of MENU) {
+    if (m !== 'hr') { if (allowed.includes(m[2])) out.push(m) } else if (out.length && out[out.length - 1] !== 'hr') out.push(m)
+  }
+  if (out[out.length - 1] === 'hr') out.pop()
+  return out
 }
 
 /** The signed-in shell. Without a (sample) sign-in the visitor is sent to the sign-in page. */
