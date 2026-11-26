@@ -13,7 +13,9 @@ export const ACTION_LABEL: Record<string, string> = {
   team_member_changed: 'Team member changed',
   invoice_created: 'Invoice raised',
   invoice_paid: 'Payment received',
-  invoice_cancelled: 'Invoice cancelled'
+  invoice_cancelled: 'Invoice cancelled',
+  key_emailed: 'Activation key emailed',
+  key_issued: 'New activation key'
 }
 
 export const actionLabel = (action: string): string => ACTION_LABEL[action] ?? action

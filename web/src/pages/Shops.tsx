@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { get } from '../api'
 import { can } from '../auth'
 import { Chip, Tabs } from '../components/ui'
@@ -30,6 +30,7 @@ function keep(s: ShopRow, filter: string): boolean {
 
 export function Shops() {
   const loc = useLocation()
+  const nav = useNavigate()
   const [filter, setFilter] = useState<string>((loc.state as { filter?: string } | null)?.filter ?? 'all')
   const [q, setQ] = useState('')
   const [shops, setShops] = useState<ShopRow[] | null>(null)
@@ -49,7 +50,7 @@ export function Shops() {
           : list.length ? (
             <div className="tw"><table><thead><tr><th>Shop</th><th>Owner</th><th>City</th><th>Plan</th><th className="r">PCs</th><th>Expires</th><th>Last seen</th><th>Status</th></tr></thead><tbody>
               {list.map((s) => (
-                <tr key={s.tenantId}>
+                <tr key={s.tenantId} className="click" onClick={() => nav(`/shops/${s.tenantId}`)}>
                   <td><b>{s.name}</b></td><td>{s.owner}<div className="muted mono">{phone(s.mobile)}</div></td><td>{s.city}</td><td>{s.planName}</td>
                   <td className="r num">{s.pcs}</td>
                   <td>{s.expires ? dOnly(new Date(s.expires).getTime()) : <span className="muted">—</span>}</td>

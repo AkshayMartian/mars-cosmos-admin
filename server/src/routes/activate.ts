@@ -64,7 +64,7 @@ export function activateRoutes(config: Config, signer: LicenceSigner | null) {
         if (!claimed) return reply.code(409).send({ error: 'This key was just activated on another PC. Contact MARS support.' })
         licenceIssued = d.issued; licenceExpires = d.expires
         await db.collection('shops').updateOne({ tenantId }, { $set: { status: 'active', updatedAt: now } })
-        await db.collection('audit_log').insertOne({ tenantId, action: 'licence_activated', at: now, details: { key: key.slice(0, 9) + '••••-••••' } })
+        await db.collection('audit_log').insertOne({ tenantId, action: 'licence_activated', at: now, details: { key: key.slice(0, 10) + '••••-••••' } })
       }
       await db.collection('devices').updateOne({ tenantId, machineId: machine }, { $set: { key, lastCheckAt: now }, $setOnInsert: { activatedAt: now } }, { upsert: true })
 

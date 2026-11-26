@@ -16,6 +16,7 @@ import { planRoutes } from './routes/plans.js'
 import { teamRoutes } from './routes/team.js'
 import { auditRoutes } from './routes/audit.js'
 import { paymentRoutes } from './routes/payments.js'
+import { shopRoutes } from './routes/shop.js'
 import { pinResetRoutes } from './routes/pinreset.js'
 import { plannedRoutes } from './routes/planned.js'
 import { refreshRoutes } from './routes/refresh.js'
@@ -45,6 +46,7 @@ export async function buildApp(config: Config, database: Database | null = null,
   await app.register(teamRoutes(secret))
   await app.register(auditRoutes(secret))
   await app.register(paymentRoutes(secret))
+  await app.register(shopRoutes(secret, messenger))
   await app.register(onboardingRoutes({ config, messenger, otpSecret: secret, ...(options.emailDomainOk ? { emailDomainOk: options.emailDomainOk } : {}) }))
   await app.register(activateRoutes(config, signer))
   await app.register(pinResetRoutes({ config, messenger, secret }))

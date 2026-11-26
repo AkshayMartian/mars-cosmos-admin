@@ -45,7 +45,7 @@ export function Dashboard() {
           {data?.renewSoon.length ? (
             <div className="tw"><table><thead><tr><th>Shop</th><th>Plan</th><th>Expires</th></tr></thead><tbody>
               {data.renewSoon.map((s) => (
-                <tr key={s.tenantId}><td>{s.name}</td><td>{s.plan}</td>
+                <tr key={s.tenantId}><td><Link to={`/shops/${s.tenantId}`}>{s.name}</Link></td><td>{s.plan}</td>
                   <td>{dOnly(new Date(s.expires).getTime())} <Chip tone="warn">{s.daysLeft} {s.daysLeft === 1 ? 'day' : 'days'}</Chip></td></tr>
               ))}
             </tbody></table></div>
@@ -55,7 +55,7 @@ export function Dashboard() {
           <p className="muted" style={{ margin: 0 }}>Call these shops: licence checks and WhatsApp stop while the PC is offline.</p>
           {data?.offline.length ? (
             <div className="tw"><table><thead><tr><th>Shop</th><th>Last seen</th><th>Phone</th></tr></thead><tbody>
-              {data.offline.map((s) => <tr key={s.tenantId}><td>{s.name}</td><td>{ago(new Date(s.lastSeen).getTime())}</td><td className="mono">{phone(s.mobile)}</td></tr>)}
+              {data.offline.map((s) => <tr key={s.tenantId}><td><Link to={`/shops/${s.tenantId}`}>{s.name}</Link></td><td>{ago(new Date(s.lastSeen).getTime())}</td><td className="mono">{phone(s.mobile)}</td></tr>)}
             </tbody></table></div>
           ) : <div className="empty">{data ? 'All shops checked in this week.' : 'Loading…'}</div>}
         </div>

@@ -13,7 +13,7 @@ const endOfDay = (ymd: string): number => new Date(ymd + 'T23:59:59.999Z').getTi
 type Status = 'Active' | 'Expiring' | 'Expired' | 'Suspended' | 'Waiting'
 
 /** One row per shop with its owner, licence expiry, last contact and status, read from the database. */
-async function shopRows(db: import('mongodb').Db, now: number) {
+export async function shopRows(db: import('mongodb').Db, now: number) {
   const [shops, owners, keys, devices, plans] = await Promise.all([
     db.collection('shops').find({}).toArray(),
     db.collection('owners').find({}).toArray(),

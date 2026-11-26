@@ -24,7 +24,7 @@ const MAX_CODE_ATTEMPTS = 5
 const RESEND_SECONDS = 30
 const MAX_CODES_PER_HOUR = 5
 /** A key nobody activated is refused after this many days (staff can issue a new one). */
-const KEY_VALID_DAYS = 60
+export const KEY_VALID_DAYS = 60
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024
 
 const mobile = z.string().regex(MOBILE_RE, 'Mobile number: 10 digits starting with 6, 7, 8 or 9.')
