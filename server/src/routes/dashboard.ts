@@ -1,23 +1,11 @@
 import type { FastifyInstance } from 'fastify'
+import { auditRow } from '../lib/audit.js'
 import { loadPlans } from '../lib/plans.js'
 import { requireStaff } from './admin.js'
 
 const DAY = 86_400_000
 const OFFLINE_DAYS = 7
 const RENEW_DAYS = 30
-
-/** Audit actions as staff read them. Unknown actions are shown as they are stored. */
-const ACTION_LABEL: Record<string, string> = {
-  shop_onboarded: 'Shop created',
-  licence_activated: 'Licence activated',
-  pin_reset_email_sent: 'PIN reset email sent',
-  pin_reset_completed: 'New PIN chosen',
-  pin_reset_applied: 'PIN reset applied',
-  plan_changed: 'Plan changed'
-}
-
-const detailText = (d: unknown): string =>
-  d && typeof d === 'object' ? Object.entries(d as Record<string, unknown>).filter(([k, v]) => k !== 'shop' && v !== false && v != null).map(([k, v]) => (v === true ? k : String(v))).join(' · ') : ''
 
 /** End of the inclusive licence day `YYYY-MM-DD`, in ms. */
 const endOfDay = (ymd: string): number => new Date(ymd + 'T23:59:59.999Z').getTime()
@@ -97,13 +85,7 @@ export function dashboardRoutes(secret: string) {
           .map((r) => ({ tenantId: r.tenantId, name: r.name, plan: r.planName, expires: r.expires!, daysLeft: Math.max(0, r.daysLeft!) })),
         offline: rows.filter((r) => r.offline).sort((a, b) => a.lastSeen!.localeCompare(b.lastSeen!))
           .map((r) => ({ tenantId: r.tenantId, name: r.name, lastSeen: r.lastSeen!, mobile: r.mobile })),
-        recent: audit.map((a) => ({
-          at: (a['at'] as Date).toISOString(),
-          by: (a['by'] as string | undefined) ?? (a['action'] === 'shop_onboarded' ? 'Staff' : 'Shop'),
-          action: ACTION_LABEL[a['action'] as string] ?? String(a['action']),
-          shop: a['tenantId'] ? name.get(a['tenantId']) ?? null : null,
-          details: detailText(a['details'])
-        }))
+        recent: audit.map((a) => auditRow(a, (t) => name.get(t)))
       }
     })
   }

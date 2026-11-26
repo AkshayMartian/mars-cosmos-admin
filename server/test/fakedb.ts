@@ -7,11 +7,15 @@ type Doc = Record<string, any>
 function matches(d: Doc, f: Doc): boolean {
   return Object.entries(f).every(([k, v]) => {
     if (k === '$or') return (v as Doc[]).some((x) => matches(d, x))
+    if (k === '$and') return (v as Doc[]).every((x) => matches(d, x))
+    const val = k.split('.').reduce<any>((o, part) => o?.[part], d)
     if (v && typeof v === 'object' && !(v instanceof Date)) {
       return Object.entries(v as Doc).every(([op, arg]) => {
-        if (op === '$gt') return d[k] > arg
-        if (op === '$in') return (arg as unknown[]).includes(d[k])
-        if (op === '$exists') return (d[k] !== undefined) === arg
+        if (op === '$gt') return val > arg
+        if (op === '$lt') return val < arg
+        if (op === '$regex') return typeof val === 'string' && (arg as RegExp).test(val)
+        if (op === '$in') return (arg as unknown[]).includes(val)
+        if (op === '$exists') return (val !== undefined) === arg
         throw new Error('fake db: unsupported operator ' + op)
       })
     }

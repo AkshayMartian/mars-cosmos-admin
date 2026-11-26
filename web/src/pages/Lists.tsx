@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { get, post, put } from '../api'
 import { Link } from 'react-router-dom'
 import { currentUser } from '../auth'
-import { Chip, Field, Modal, SampleNote, toast } from '../components/ui'
-import { ADDONS, addAudit, addonName, dOnly, dt, inr, PLANS, uid, update, useStore, type State } from '../store'
+import { Chip, Field, Modal, PasswordInput, SampleNote, toast } from '../components/ui'
+import { ADDONS, addAudit, addonName, ago, dOnly, dt, inr, PLANS, uid, update, useStore, type State } from '../store'
 
 interface PlanRow { key: string; name: string; yearPrice: number; counters: number; includes: string[] }
 
@@ -162,50 +162,135 @@ export function Payments() {
   )
 }
 
+interface Member { name: string; email: string; role: 'Admin' | 'Support' | 'Sales'; active: boolean; lastLoginAt: string | null }
+type Role = Member['role']
+const BLANK_MEMBER = { name: '', email: '', role: 'Support' as Role, password: '' }
+
 export function Team() {
-  const { team } = useStore()
-  const [open, setOpen] = useState(false)
-  const [f, setF] = useState({ name: '', email: '', role: 'Support' as 'Admin' | 'Support' | 'Sales' })
-  const by = currentUser()?.name ?? '—'
+  const me = currentUser()
+  const isAdmin = me?.role === 'Admin'
+  const [team, setTeam] = useState<Member[] | null>(null)
+  const [error, setError] = useState('')
+  const [adding, setAdding] = useState(false)
+  const [f, setF] = useState(BLANK_MEMBER)
+  const [editing, setEditing] = useState<{ m: Member; role: Role; password: string } | null>(null)
+  const [busy, setBusy] = useState(false)
+  useEffect(() => { get<{ team: Member[] }>('/v1/admin/team').then((r) => setTeam(r.team), (e: Error) => setError(e.message)) }, [])
+
+  const run = async (fn: () => Promise<{ team: Member[] }>, done: string, close: () => void) => {
+    setBusy(true)
+    try { const r = await fn(); setTeam(r.team); toast(done); close() } catch (e) { toast(e instanceof Error ? e.message : 'Could not save.') } finally { setBusy(false) }
+  }
+  const add = () => {
+    if (!f.name.trim() || !f.email.trim() || !f.password) return toast('Fill in name, email and a password.')
+    void run(() => post('/v1/admin/team', { ...f, name: f.name.trim(), email: f.email.trim() }), 'Team member added. Give them their password.', () => { setAdding(false); setF(BLANK_MEMBER) })
+  }
+  const change = (m: Member, body: Record<string, unknown>, done: string) =>
+    run(() => put(`/v1/admin/team/${encodeURIComponent(m.email)}`, body), done, () => setEditing(null))
+  const saveEdit = () => {
+    if (!editing) return
+    const body: Record<string, unknown> = {}
+    if (editing.role !== editing.m.role) body['role'] = editing.role
+    if (editing.password) body['password'] = editing.password
+    if (!Object.keys(body).length) return setEditing(null)
+    void change(editing.m, body, 'Saved.')
+  }
+
   return (
     <>
-      <div className="head"><h1>Team</h1><button type="button" className="btn p" onClick={() => setOpen(true)}>+ Add team member</button></div>
+      <div className="head"><h1>Team</h1>{isAdmin && <button type="button" className="btn p" onClick={() => setAdding(true)}>+ Add team member</button>}</div>
       <div className="panel">
-        <div className="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead><tbody>
-          {team.map((u) => <tr key={u.id}><td>{u.name}</td><td className="mono">{u.email}</td><td>{u.role}</td><td><Chip tone={u.active ? 'good' : 'grey'}>{u.active ? 'Active' : 'Off'}</Chip></td></tr>)}
-        </tbody></table></div>
+        {error ? <div className="empty" role="alert">Could not load the team: {error}</div> : !team ? <div className="empty">Loading…</div> : (
+          <div className="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last sign-in</th><th>Status</th>{isAdmin && <th />}</tr></thead><tbody>
+            {team.map((u) => {
+              const self = u.email === me?.email
+              return (
+                <tr key={u.email}><td>{u.name}{self && <span className="muted"> (you)</span>}</td><td className="mono">{u.email}</td><td>{u.role}</td>
+                  <td>{u.lastLoginAt ? ago(new Date(u.lastLoginAt).getTime()) : <span className="muted">Never</span>}</td>
+                  <td><Chip tone={u.active ? 'good' : 'grey'}>{u.active ? 'Active' : 'Off'}</Chip></td>
+                  {isAdmin && <td className="r">
+                    <button type="button" className="btn sm" onClick={() => setEditing({ m: u, role: u.role, password: '' })}>Edit</button>{' '}
+                    {!self && <button type="button" className="btn sm" disabled={busy} onClick={() => void change(u, { active: !u.active }, u.active ? `${u.name} switched off.` : `${u.name} switched on.`)}>{u.active ? 'Switch off' : 'Switch on'}</button>}
+                  </td>}
+                </tr>
+              )
+            })}
+          </tbody></table></div>
+        )}
         <div className="tw"><table><thead><tr><th>Role</th><th>Can do</th></tr></thead><tbody>
           <tr><td><b>Admin</b></td><td>Everything, including plans, prices, team and app releases</td></tr>
           <tr><td><b>Support</b></td><td>See shops, devices, activation keys, release PC, notes, WhatsApp logs</td></tr>
           <tr><td><b>Sales</b></td><td>Onboard shops, trials, renew, send activation keys</td></tr>
         </tbody></table></div>
+        {!isAdmin && <p className="muted" style={{ margin: 0 }}>Only an Admin can add or change team members.</p>}
       </div>
-      <SampleNote />
-      {open && (
-        <Modal onClose={() => setOpen(false)}>
+      {adding && (
+        <Modal onClose={() => setAdding(false)}>
           <h2>Add team member</h2>
-          <div className="row"><Field label="Name" id="u-n"><input id="u-n" type="text" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field><Field label="Email" id="u-e"><input id="u-e" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field></div>
-          <div className="f"><label htmlFor="u-r">Role</label><select id="u-r" value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as typeof f.role })}><option>Support</option><option>Sales</option><option>Admin</option></select></div>
-          <div className="mfoot"><button type="button" className="btn" onClick={() => setOpen(false)}>Cancel</button>
-            <button type="button" className="btn p" onClick={() => { const n = f.name.trim(), e = f.email.trim().toLowerCase(); if (!n || !e) return; update((s) => { s.team.push({ id: uid('u'), name: n, email: e, role: f.role, active: true }); addAudit(s, by, 'Team member added', null, n) }); toast('Added'); setOpen(false); setF({ name: '', email: '', role: 'Support' }) }}>Add</button></div>
+          <div className="row start"><Field label="Name" id="u-n"><input id="u-n" type="text" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field><Field label="Email" id="u-e"><input id="u-e" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field></div>
+          <div className="row start">
+            <div className="f"><label htmlFor="u-r">Role</label><select id="u-r" value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as Role })}><option>Support</option><option>Sales</option><option>Admin</option></select></div>
+            <Field label="Password" id="u-p" hint="At least 8 characters. Share it with them privately."><PasswordInput id="u-p" autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
+          </div>
+          <div className="mfoot"><button type="button" className="btn" onClick={() => setAdding(false)}>Cancel</button>
+            <button type="button" className="btn p" disabled={busy} onClick={add}>Add</button></div>
+        </Modal>
+      )}
+      {editing && (
+        <Modal onClose={() => setEditing(null)}>
+          <h2>Edit {editing.m.name}</h2>
+          <div className="f"><label htmlFor="e-r">Role</label><select id="e-r" value={editing.role} disabled={editing.m.email === me?.email} onChange={(e) => setEditing({ ...editing, role: e.target.value as Role })}><option>Support</option><option>Sales</option><option>Admin</option></select></div>
+          <Field label="New password" id="e-p" hint="Leave empty to keep the current password."><PasswordInput id="e-p" autoComplete="new-password" value={editing.password} onChange={(e) => setEditing({ ...editing, password: e.target.value })} /></Field>
+          <div className="mfoot"><button type="button" className="btn" onClick={() => setEditing(null)}>Cancel</button>
+            <button type="button" className="btn p" disabled={busy} onClick={saveEdit}>Save</button></div>
         </Modal>
       )}
     </>
   )
 }
 
+interface AuditEntry { id: string; at: string; by: string; action: string; shop: string | null; details: string }
+
 export function Audit() {
-  const { audit, shops } = useStore()
   const [q, setQ] = useState('')
-  const name = (id: string | null) => shops.find((s) => s.id === id)?.name ?? ''
-  const list = audit.filter((a) => !q || `${a.by} ${a.action} ${a.details} ${name(a.shop)}`.toLowerCase().includes(q.toLowerCase()))
+  const [entries, setEntries] = useState<AuditEntry[] | null>(null)
+  const [more, setMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState('')
+  const query = (before?: string) => `/v1/admin/audit?${new URLSearchParams({ ...(q.trim() ? { q: q.trim() } : {}), ...(before ? { before } : {}) })}`
+
+  // search as you type, after a short pause; an older answer never replaces a newer one
+  useEffect(() => {
+    let live = true
+    const t = setTimeout(() => {
+      get<{ entries: AuditEntry[]; more: boolean }>(query()).then((r) => { if (live) { setEntries(r.entries); setMore(r.more); setError('') } }, (e: Error) => { if (live) setError(e.message) })
+    }, q ? 300 : 0)
+    return () => { live = false; clearTimeout(t) }
+  }, [q])
+
+  const loadMore = async () => {
+    if (!entries?.length) return
+    setLoadingMore(true)
+    try {
+      const r = await get<{ entries: AuditEntry[]; more: boolean }>(query(entries[entries.length - 1]!.at))
+      setEntries([...entries, ...r.entries]); setMore(r.more)
+    } catch (e) { toast(e instanceof Error ? e.message : 'Could not load more.') } finally { setLoadingMore(false) }
+  }
+
   return (
     <>
       <div className="head"><h1>Audit log</h1></div>
-      <div className="panel"><div className="f"><label htmlFor="aq">Search</label><input id="aq" type="text" value={q} onChange={(e) => setQ(e.target.value)} /></div>
-        <div className="tw"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Shop</th><th>Details</th></tr></thead><tbody>
-          {list.map((a, i) => <tr key={i}><td>{dt(a.at)}</td><td>{a.by}</td><td>{a.action}</td><td>{a.shop && <Link to={`/shops/${a.shop}`}>{name(a.shop)}</Link>}</td><td>{a.details}</td></tr>)}
-        </tbody></table></div>
+      <div className="panel"><div className="f"><label htmlFor="aq">Search who, action or shop</label><input id="aq" type="text" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        {error ? <div className="empty" role="alert">Could not load the audit log: {error}</div>
+          : entries === null ? <div className="empty">Loading…</div>
+          : entries.length ? (
+            <>
+              <div className="tw"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Shop</th><th>Details</th></tr></thead><tbody>
+                {entries.map((a) => <tr key={a.id}><td>{dt(new Date(a.at).getTime())}</td><td>{a.by}</td><td>{a.action}</td><td>{a.shop ?? '—'}</td><td>{a.details}</td></tr>)}
+              </tbody></table></div>
+              {more && <div className="mfoot" style={{ justifyContent: 'center' }}><button type="button" className="btn" disabled={loadingMore} onClick={() => void loadMore()}>{loadingMore ? 'Loading…' : 'Show older'}</button></div>}
+            </>
+          ) : <div className="empty">{q.trim() ? 'Nothing matches.' : 'No changes recorded yet.'}</div>}
       </div>
     </>
   )

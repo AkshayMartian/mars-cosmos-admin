@@ -36,7 +36,11 @@ export const sessionOf = (secret: string, req: FastifyRequest): Session | null =
 
 /** Use as a route `preHandler`: answers 401 unless a staff member is signed in. */
 export const requireStaff = (secret: string) => async (req: FastifyRequest, reply: FastifyReply) => {
-  if (!sessionOf(secret, req)) return reply.code(401).send({ error: 'Sign in first.' })
+  const s = sessionOf(secret, req)
+  if (!s) return reply.code(401).send({ error: 'Sign in first.' })
+  // a member switched off on the Team page loses access at once, not when their 8-hour session runs out
+  const u = await req.server.database?.db.collection('admin_users').findOne({ email: s.email })
+  if (u && !u['active']) return reply.code(401).send({ error: 'Your access has been switched off. Ask an Admin.' })
 }
 
 const Body = z.object({ email: z.string().trim().toLowerCase().max(120), password: z.string().min(1).max(200) })
